@@ -7,8 +7,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("AdvancedZones")]
 [assembly: AssemblyDescription("AdvancedZones for Rocket-Servers")]
 [assembly: AssemblyCompany("Game4Freak")]
-[assembly: AssemblyProduct("AAdvancedZones")]
-[assembly: AssemblyCopyright("Copyright © 2018 Game4Freak")]
+[assembly: AssemblyProduct("AdvancedZones")]
+[assembly: AssemblyCopyright("Copyright © 2019 Game4Freak")]
 [assembly: AssemblyTrademark("AdvancedZones")]
 
 // Durch Festlegen von ComVisible auf "false" werden die Typen in dieser Assembly unsichtbar 
