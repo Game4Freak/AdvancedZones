@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E765482E-CDA0-4DB0-9376-4650A9EA9264}</ProjectGuid>
+    <ProjectGuid>{8916A52C-CB04-4177-831D-AB8B9B4F8221}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Game4Freak.AdvancedZones</RootNamespace>
