@@ -1,2 +1,1 @@
-# AdvancedZones
-a Unturned plugin
+
