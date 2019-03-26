@@ -34,7 +34,7 @@ namespace Game4Freak.AdvancedZones
         protected override void Load()
         {
             Instance = this;
-            Logger.Log($"AdvancedZones v{VERSION}");
+            Logger.Log("AdvancedZones v{VERSION}");
             
             // Block Damage
             BarricadeManager.onDamageBarricadeRequested += onBarricadeDamage;
