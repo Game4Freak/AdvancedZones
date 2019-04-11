@@ -10,19 +10,25 @@ namespace Game4Freak.AdvancedZones
         private string name;
         private Node[] nodes;
         private List<int> flags;
-        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild" };
-        public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of buildables"};
+        private List<string> blockedBuildables;
+        private List<string> blockedEquips;
+        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage" };
+        public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of buildables", "No equiping of specific items", "No damage on tires" };
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
         public static int noPlayerDamage = 3;
         public static int noBuild = 4;
+        public static int noItemEquip = 5;
+        public static int noTireDamage = 6;
 
         public Zone()
         {
             name = "";
             nodes = new Node[] { };
             flags = new List<int>();
+            blockedBuildables = new List<string>();
+            blockedEquips = new List<string>();
         }
 
         public Zone(string zoneName)
@@ -30,6 +36,8 @@ namespace Game4Freak.AdvancedZones
             name = zoneName;
             nodes = new Node[] { };
             flags = new List<int>();
+            blockedBuildables = new List<string>();
+            blockedEquips = new List<string>();
         }
 
         public void addNode(Node node)
@@ -59,30 +67,55 @@ namespace Game4Freak.AdvancedZones
 
         public void addFlag(int flag)
         {
-            flags.Add(flag);
+            if (!flags.Contains(flag))
+            {
+                flags.Add(flag);
+            }
         }
 
         public void removeFlag(int flag)
         {
-            foreach (var f in flags)
+            if (flags.Contains(flag))
             {
-                if (f == flag)
-                {
-                    flags.Remove(f);
-                }
+                flags.Remove(flag);
             }
         }
 
         public bool hasFlag(int flag)
         {
-            foreach (var f in flags)
+            return flags.Contains(flag);
+        }
+
+        public void addBlockedBuildable(string blockedBuildable)
+        {
+            if (!blockedBuildables.Contains(blockedBuildable))
             {
-                if (f == flag)
-                {
-                    return true;
-                }
+                blockedBuildables.Add(blockedBuildable);
             }
-            return false;
+        }
+
+        public void removeBlockedBuildable(string blockedBuildable)
+        {
+            if (blockedBuildables.Contains(blockedBuildable))
+            {
+                blockedBuildables.Remove(blockedBuildable);
+            }
+        }
+
+        public void addBlockedEquip(string blockedEquip)
+        {
+            if (!blockedEquips.Contains(blockedEquip))
+            {
+                blockedEquips.Add(blockedEquip);
+            }
+        }
+
+        public void removeBlockedEquip(string blockedEquip)
+        {
+            if (blockedEquips.Contains(blockedEquip))
+            {
+                blockedEquips.Remove(blockedEquip);
+            }
         }
 
         public string getName()
@@ -100,15 +133,19 @@ namespace Game4Freak.AdvancedZones
             return flags;
         }
 
+        public List<string> getBlockedBuildables()
+        {
+            return blockedBuildables;
+        }
+        
+        public List<string> getBlockedEquips()
+        {
+            return blockedEquips;
+        }
+
         public bool isReady()
         {
-            if (nodes.Length > 2)
-            {
-                return true;
-            } else
-            {
-                return false;
-            }
+            return nodes.Length > 2;
         }
     }
 }

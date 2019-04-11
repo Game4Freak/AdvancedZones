@@ -50,7 +50,7 @@ namespace Game4Freak.AdvancedZones
         public void Execute(IRocketPlayer caller, params string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
-            if (command.Length != 1 && command.Length != 2 && command.Length != 3 && command.Length != 4)
+            if (command.Length != 1 && command.Length != 2 && command.Length != 3 && command.Length != 4 && command.Length != 5)
             {
                 UnturnedChat.Say(caller, "Invalid! Try /zone help or /zone " + Syntax, UnityEngine.Color.red);
                 return;
@@ -74,7 +74,7 @@ namespace Game4Freak.AdvancedZones
                     bool isValid = true;
                     foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                     {
-                        if (z == zoneName)
+                        if (z.ToLower() == zoneName.ToLower())
                         {
                             isValid = false;
                         }
@@ -84,6 +84,9 @@ namespace Game4Freak.AdvancedZones
                         AdvancedZones.Instance.Configuration.Instance.ZoneNames.Add(zoneName);
                         AdvancedZones.Instance.Configuration.Instance.ZoneNodes.Add(new List<float[]>());
                         AdvancedZones.Instance.Configuration.Instance.ZoneFlags.Add(new List<int>());
+                        AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.Add(new List<string>());
+                        AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.Add(new List<string>());
+
                         AdvancedZones.Instance.Configuration.Save();
                         UnturnedChat.Say(caller, "Added zone: " + zoneName, UnityEngine.Color.cyan);
                     }
@@ -103,7 +106,7 @@ namespace Game4Freak.AdvancedZones
                     int x = 0;
                     foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                     {
-                        if (z == command[2])
+                        if (z.ToLower() == command[2].ToLower())
                         {
                             AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x).Add(new float[] { player.Position.x, player.Position.z, player.Position.y });
                             AdvancedZones.Instance.Configuration.Save();
@@ -136,16 +139,16 @@ namespace Game4Freak.AdvancedZones
                         int x = 0;
                         foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                         {
-                            if (z == command[2])
+                            if (z.ToLower() == command[2].ToLower())
                             {
+                                if (AdvancedZones.Instance.Configuration.Instance.ZoneFlags.ElementAt(x).Contains(flagNum))
+                                {
+                                    UnturnedChat.Say(caller, "The zone: " + command[2] + " already has the flag: " + Zone.flagTypes[flagNum], UnityEngine.Color.red);
+                                    return;
+                                }
                                 AdvancedZones.Instance.Configuration.Instance.ZoneFlags.ElementAt(x).Add(flagNum);
                                 AdvancedZones.Instance.Configuration.Save();
                                 UnturnedChat.Say(caller, "Added flag " + Zone.flagTypes[flagNum] + " to zone: " + z, UnityEngine.Color.cyan);
-                                // TODO PLAYER DAMAGE
-                                if (Zone.noPlayerDamage == flagNum)
-                                {
-                                    UnturnedChat.Say(caller, "The flag " + Zone.flagTypes[Zone.noPlayerDamage] + " is work in progress");
-                                }
                                 return;
                             }
                             x++;
@@ -161,6 +164,71 @@ namespace Game4Freak.AdvancedZones
                         }
                         UnturnedChat.Say(caller, message, UnityEngine.Color.red);
                         return;
+                    }
+                }
+                else if (command[1].ToLower() == "block")
+                {
+                    if (command.Length < 5)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone add block <zonename> <equip|build> <blockList>", UnityEngine.Color.red);
+                        return;
+                    }
+                    foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
+                    {
+                        if (z.ToLower() == command[2].ToLower())
+                        {
+                            if (command[3].ToLower() == "equip")
+                            {
+                                foreach (var blockList in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                                {
+                                    if (blockList.ToLower() == command[4].ToLower())
+                                    {
+                                        foreach (var zoneBlockList in AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                        {
+                                            if (zoneBlockList.ToLower() == command[4].ToLower())
+                                            {
+                                                UnturnedChat.Say(caller, "Zone already got the BlockList: " + zoneBlockList, UnityEngine.Color.red);
+                                                return;
+                                            }
+                                        }
+                                        AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Add(blockList);
+                                        AdvancedZones.Instance.Configuration.Save();
+                                        UnturnedChat.Say(caller, "Added BlockList: " + blockList + " to zone: " + z, UnityEngine.Color.cyan);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The blockList: " + command[4] + " does not exist", UnityEngine.Color.red);
+                                return;
+                            }
+                            else if (command[3].ToLower() == "build")
+                            {
+                                foreach (var blockList in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                                {
+                                    if (blockList.ToLower() == command[4])
+                                    {
+                                        foreach (var zoneBlockList in AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                        {
+                                            if (zoneBlockList.ToLower() == command[4])
+                                            {
+                                                UnturnedChat.Say(caller, "Zone already got the BlockList: " + zoneBlockList, UnityEngine.Color.red);
+                                                return;
+                                            }
+                                        }
+                                        AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Add(blockList);
+                                        AdvancedZones.Instance.Configuration.Save();
+                                        UnturnedChat.Say(caller, "Added BlockList: " + blockList + " to zone: " + z, UnityEngine.Color.cyan);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The blockList: " + command[4] + " does not exist", UnityEngine.Color.red);
+                                return;
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(caller, "Invalid! Try /zone add block <zonename> <equip|build> <blockList>", UnityEngine.Color.red);
+                                return;
+                            }
+                        }
                     }
                 }
                 else
@@ -187,11 +255,13 @@ namespace Game4Freak.AdvancedZones
                     int x = 0;
                     foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                     {
-                        if (z == command[2])
+                        if (z.ToLower() == command[2].ToLower())
                         {
                             AdvancedZones.Instance.Configuration.Instance.ZoneNames.Remove(z);
-                            AdvancedZones.Instance.Configuration.Instance.ZoneNodes.Remove(AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x));
-                            AdvancedZones.Instance.Configuration.Instance.ZoneFlags.Remove(AdvancedZones.Instance.Configuration.Instance.ZoneFlags.ElementAt(x));
+                            AdvancedZones.Instance.Configuration.Instance.ZoneNodes.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneFlags.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.RemoveAt(x);
                             AdvancedZones.Instance.Configuration.Save();
                             UnturnedChat.Say(caller, "Removed zone: " + z, UnityEngine.Color.cyan);
                             return;
@@ -213,11 +283,11 @@ namespace Game4Freak.AdvancedZones
                         int x = 0;
                         foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                         {
-                            if (z == command[2])
+                            if (z.ToLower() == command[2].ToLower())
                             {
                                 if (nodeNum < AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x).Count())
                                 {
-                                    AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x).Remove(AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x).ElementAt(nodeNum));
+                                    AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x).RemoveAt(nodeNum);
                                     AdvancedZones.Instance.Configuration.Save();
                                     UnturnedChat.Say(caller, "Removed node (" + nodeNum + ") from zone: " + z, UnityEngine.Color.cyan);
                                 }
@@ -258,7 +328,7 @@ namespace Game4Freak.AdvancedZones
                         int x = 0;
                         foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                         {
-                            if (z == command[2])
+                            if (z.ToLower() == command[2].ToLower())
                             {
                                 foreach (var f in AdvancedZones.Instance.Configuration.Instance.ZoneFlags.ElementAt(x))
                                 {
@@ -288,6 +358,71 @@ namespace Game4Freak.AdvancedZones
                         return;
                     }
                 }
+                else if (command[1].ToLower() == "block")
+                {
+                    if (command.Length < 5)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone add block <zonename> <equip|build> <blockList>", UnityEngine.Color.red);
+                        return;
+                    }
+                    foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
+                    {
+                        if (z.ToLower() == command[2].ToLower())
+                        {
+                            if (command[3].ToLower() == "equip")
+                            {
+                                foreach (var blockList in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                                {
+                                    if (blockList.ToLower() == command[4].ToLower())
+                                    {
+                                        foreach (var zoneBlockList in AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                        {
+                                            if (zoneBlockList.ToLower() == command[4].ToLower())
+                                            {
+                                                AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Remove(blockList);
+                                                AdvancedZones.Instance.Configuration.Save();
+                                                UnturnedChat.Say(caller, "Removed BlockList: " + blockList + " from zone: " + z, UnityEngine.Color.cyan);
+                                                return;
+                                            }
+                                        }
+                                        UnturnedChat.Say(caller, "The zone: " + z + " does not has the BlockList: " + blockList, UnityEngine.Color.red);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The blockList: " + command[4] + " does not exist", UnityEngine.Color.red);
+                                return;
+                            }
+                            else if (command[3].ToLower() == "build")
+                            {
+                                foreach (var blockList in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                                {
+                                    if (blockList.ToLower() == command[4])
+                                    {
+                                        foreach (var zoneBlockList in AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                        {
+                                            if (zoneBlockList.ToLower() == command[4])
+                                            {
+                                                AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Remove(blockList);
+                                                AdvancedZones.Instance.Configuration.Save();
+                                                UnturnedChat.Say(caller, "Removed BlockList: " + blockList + " from zone: " + z, UnityEngine.Color.cyan);
+                                                return;
+                                            }
+                                        }
+                                        UnturnedChat.Say(caller, "The zone: " + z + " does not has the BlockList: " + blockList, UnityEngine.Color.red);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The blockList: " + command[4] + " does not exist", UnityEngine.Color.red);
+                                return;
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(caller, "Invalid! Try /zone remove block <zonename> <equip|build> <blockList>", UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                    }
+                }
                 else
                 {
                     UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag> <zonename> <node|flag>", UnityEngine.Color.red);
@@ -311,7 +446,7 @@ namespace Game4Freak.AdvancedZones
                     }
                     foreach (var z in AdvancedZones.Instance.convertConfigToZone())
                     {
-                        if (z.getName() == command[2])
+                        if (z.getName().ToLower() == command[2].ToLower())
                         {
                             string message = "";
                             if (z.isReady())
@@ -379,7 +514,7 @@ namespace Game4Freak.AdvancedZones
                     }
                     foreach (var z in AdvancedZones.Instance.convertConfigToZone())
                     {
-                        if (z.getName() == command[2])
+                        if (z.getName().ToLower() == command[2].ToLower())
                         {
                             string message = "Nodes of zone: " + z.getName() + ": ";
                             for (int i = 0; i < z.getNodes().Length; i++)
@@ -401,7 +536,7 @@ namespace Game4Freak.AdvancedZones
                     }
                     foreach (var z in AdvancedZones.Instance.convertConfigToZone())
                     {
-                        if (z.getName() == command[2])
+                        if (z.getName().ToLower() == command[2].ToLower())
                         {
                             string message = "Flags of zone: " + z.getName() + ": ";
                             foreach (var f in z.getFlags())
@@ -409,6 +544,33 @@ namespace Game4Freak.AdvancedZones
                                 message = message + Zone.flagTypes[f] + ", ";
                             }
                             UnturnedChat.Say(caller, message, UnityEngine.Color.cyan);
+                            return;
+                        }
+                    }
+                    UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                }
+                else if (command[1].ToLower() == "blocklists")
+                {
+                    if (command.Length < 3)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone list blocklists <zonename>", UnityEngine.Color.red);
+                        return;
+                    }
+                    foreach (var z in AdvancedZones.Instance.convertConfigToZone())
+                    {
+                        if (z.getName().ToLower() == command[2].ToLower())
+                        {
+                            string message = "BlockLists of zone: " + z.getName() + ": Equip{";
+                            foreach (var blocked in z.getBlockedEquips())
+                            {
+                                message = message + blocked + ", ";
+                            }
+                            message = message + "}, Build{";
+                            foreach (var blocked in z.getBlockedBuildables())
+                            {
+                                message = message + blocked + ", ";
+                            }
+                            UnturnedChat.Say(caller, message + "}", UnityEngine.Color.cyan);
                             return;
                         }
                     }
@@ -478,7 +640,7 @@ namespace Game4Freak.AdvancedZones
                         int x = 0;
                         foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
                         {
-                            if (z == command[2])
+                            if (z.ToLower() == command[2].ToLower())
                             {
                                 if (nodeNum < AdvancedZones.Instance.Configuration.Instance.ZoneNodes.ElementAt(x).Count())
                                 {
@@ -512,29 +674,344 @@ namespace Game4Freak.AdvancedZones
                 string message = "Avaliable Flags: ";
                 for (int i = 0; i < Zone.flagTypes.Length; i++)
                 {
-                    //TODO PLAYER DAMAGE
-                    if (Zone.noPlayerDamage == i)
-                    {
-                        message += Zone.flagTypes[i] + " (WIP! " + Zone.flagDescs[i] + "), ";
-                    } else
-                    {
-                        message += Zone.flagTypes[i] + " (" + Zone.flagDescs[i] + "), ";
-                    }
+                    message += Zone.flagTypes[i] + " (" + Zone.flagDescs[i] + "), ";
                 }
                 UnturnedChat.Say(caller, message , UnityEngine.Color.cyan);
                 return;
+            }
+            // BLOCKLIST
+            else if (command[0].ToLower() == "blocklist")
+            {
+                if (command.Length < 3)
+                {
+                    UnturnedChat.Say(caller, "Invalid! Try /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.red);
+                    return;
+                }
+                if (command[1].ToLower() == "add")
+                {
+                    if (command[2].ToLower() == "equip")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList add equip <blockList>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var equipBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                        {
+                            if (equipBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                UnturnedChat.Say(caller, "The blockList: " + command[3] + " already exists", UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                        AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.Add(command[3]);
+                        AdvancedZones.Instance.Configuration.Instance.BlockedEquip.Add(new List<int>());
+                        AdvancedZones.Instance.Configuration.Save();
+                        UnturnedChat.Say(caller, "Added BlockList: " + command[3], UnityEngine.Color.cyan);
+                        return;
+                    }
+                    else if (command[2].ToLower() == "build")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList add build <blockList>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var buildBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                        {
+                            if (buildBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                UnturnedChat.Say(caller, "The blockList: " + command[3] + " already exists", UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                        AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.Add(command[3]);
+                        AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.Add(new List<int>());
+                        AdvancedZones.Instance.Configuration.Save();
+                        UnturnedChat.Say(caller, "Added BlockList: " + command[3], UnityEngine.Color.cyan);
+                        return;
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone blockList add <equip|block> <blockList>", UnityEngine.Color.red);
+                        return;
+                    }
+                }
+                else if (command[1].ToLower() == "remove")
+                {
+                    if (command[2].ToLower() == "equip")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList remove equip <blockList>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var equipBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                        {
+                            if (equipBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                AdvancedZones.Instance.Configuration.Instance.BlockedEquip.RemoveAt(AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.IndexOf(equipBlockNames));
+                                AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.Remove(equipBlockNames);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Removed BlockList: " + command[3], UnityEngine.Color.cyan);
+                                return;
+                            }
+                        }
+                        UnturnedChat.Say(caller, "The blockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                    else if (command[2].ToLower() == "build")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList remove build <blockList>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var buildBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                        {
+                            if (buildBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.RemoveAt(AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.IndexOf(buildBlockNames));
+                                AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.Remove(buildBlockNames);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Removed BlockList: " + command[3], UnityEngine.Color.cyan);
+                                return;
+                            }
+                        }
+                        UnturnedChat.Say(caller, "The blockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone blockList remove <equip|build> <blockList>", UnityEngine.Color.red);
+                        return;
+                    }
+                }
+                else if (command[1].ToLower() == "list")
+                {
+                    if (command[2].ToLower() == "equip")
+                    {
+                        if (command.Length < 4)
+                        {
+                            string message = "BlockLists:";
+                            foreach (var equipBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                            {
+                                message += " " + equipBlockNames + ",";
+                            }
+                            UnturnedChat.Say(message, UnityEngine.Color.cyan);
+                        }
+                        else
+                        {
+                            string message = "BlockList: ";
+                            foreach (var equipBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                            {
+                                if (equipBlockNames.ToLower() == command[3].ToLower())
+                                {
+                                    message += equipBlockNames + " {IDs:";
+                                }
+                                foreach (var itemId in AdvancedZones.Instance.Configuration.Instance.BlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.IndexOf(equipBlockNames)))
+                                {
+                                    message += " " + itemId + ",";
+                                }
+                                UnturnedChat.Say(message + "}", UnityEngine.Color.cyan);
+                                return;
+                            }
+                            UnturnedChat.Say(caller, "The BlockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        }
+                    }
+                    else if (command[2].ToLower() == "build")
+                    {
+                        if (command.Length < 4)
+                        {
+                            string message = "BlockLists:";
+                            foreach (var buildBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                            {
+                                message += " " + buildBlockNames + ",";
+                            }
+                            UnturnedChat.Say(message, UnityEngine.Color.cyan);
+                        }
+                        else
+                        {
+                            string message = "BlockList: ";
+                            foreach (var buildBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                            {
+                                if (buildBlockNames.ToLower() == command[3].ToLower())
+                                {
+                                    message += buildBlockNames + " {IDs:";
+                                }
+                                foreach (var itemId in AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.IndexOf(buildBlockNames)))
+                                {
+                                    message += " " + itemId + ",";
+                                }
+                                UnturnedChat.Say(message + "}", UnityEngine.Color.cyan);
+                                return;
+                            }
+                            UnturnedChat.Say(caller, "The BlockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        }
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone blockList list <equip|build> <blockList>", UnityEngine.Color.red);
+                        return;
+                    }
+                }
+                else if (command[1].ToLower() == "additem")
+                {
+                    if (command[2].ToLower() == "equip")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList addItem equip <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        int itemID;
+                        if (!int.TryParse(command[4], out itemID)){
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList addItem equip <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var equipBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                        {
+                            if (equipBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                if (AdvancedZones.Instance.Configuration.Instance.BlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.IndexOf(equipBlockNames)).Contains(itemID))
+                                {
+                                    UnturnedChat.Say(caller, "The BlockList: " + command[3] + " already contains " + itemID, UnityEngine.Color.red);
+                                    return;
+                                }
+                                AdvancedZones.Instance.Configuration.Instance.BlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.IndexOf(equipBlockNames)).Add(itemID);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Added Item: " + command[4] + " to BlockList: " + command[3], UnityEngine.Color.cyan);
+                                return;
+                            }
+                        }
+                        UnturnedChat.Say(caller, "The blockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                    else if (command[2].ToLower() == "build")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList addItem build <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        int itemID;
+                        if (!int.TryParse(command[4], out itemID))
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList addItem build <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var buildBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                        {
+                            if (buildBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                if (AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.IndexOf(buildBlockNames)).Contains(itemID))
+                                {
+                                    UnturnedChat.Say(caller, "The BlockList: " + command[3] + " already contains " + itemID, UnityEngine.Color.red);
+                                    return;
+                                }
+                                AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.IndexOf(buildBlockNames)).Add(itemID);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Added Item: " + command[4] + " to BlockList: " + command[3], UnityEngine.Color.cyan);
+                                return;
+                            }
+                        }
+                        UnturnedChat.Say(caller, "The blockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone blockList addItem <equip|build> <blockList> <itemID>", UnityEngine.Color.red);
+                        return;
+                    }
+                }
+                else if (command[1].ToLower() == "removeitem")
+                {
+                    if (command[2].ToLower() == "equip")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList removeItem equip <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        int itemID;
+                        if (!int.TryParse(command[4], out itemID))
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList removeItem equip <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var equipBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames)
+                        {
+                            if (equipBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                if (AdvancedZones.Instance.Configuration.Instance.BlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.IndexOf(equipBlockNames)).Contains(itemID))
+                                {
+                                    AdvancedZones.Instance.Configuration.Instance.BlockedEquip.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedEquipListNames.IndexOf(equipBlockNames)).Remove(itemID);
+                                    AdvancedZones.Instance.Configuration.Save();
+                                    UnturnedChat.Say(caller, "Removed Item: " + command[4] + " from BlockList: " + command[3], UnityEngine.Color.cyan);
+                                    return;
+                                }
+                                UnturnedChat.Say(caller, "The BlockList: " + command[3] + " does not contain " + itemID, UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                        UnturnedChat.Say(caller, "The blockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                    else if (command[2].ToLower() == "build")
+                    {
+                        if (command.Length < 4)
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList removeItem build <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        int itemID;
+                        if (!int.TryParse(command[4], out itemID))
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone blockList removeItem build <blockList> <itemID>", UnityEngine.Color.red);
+                            return;
+                        }
+                        foreach (var buildBlockNames in AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames)
+                        {
+                            if (buildBlockNames.ToLower() == command[3].ToLower())
+                            {
+                                if (AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.IndexOf(buildBlockNames)).Contains(itemID))
+                                {
+                                    AdvancedZones.Instance.Configuration.Instance.BlockedBuildables.ElementAt(AdvancedZones.Instance.Configuration.Instance.BlockedBuildablesListNames.IndexOf(buildBlockNames)).Remove(itemID);
+                                    AdvancedZones.Instance.Configuration.Save();
+                                    UnturnedChat.Say(caller, "Removed Item: " + command[4] + " from BlockList: " + command[3], UnityEngine.Color.cyan);
+                                    return;
+                                }
+                                UnturnedChat.Say(caller, "The BlockList: " + command[3] + " does not contain " + itemID, UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                        UnturnedChat.Say(caller, "The blockList: " + command[3] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone blockList removeItem <equip|build> <blockList>", UnityEngine.Color.red);
+                        return;
+                    }
+                }
+                else
+                {
+                    UnturnedChat.Say(caller, "Invalid! Try /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blocked> <itemID>", UnityEngine.Color.red);
+                    return;
+                }
             }
             else if (command[0].ToLower() == "help")
             {
                 UnturnedChat.Say(caller, "These are all commands of the AdvancedZones-Plugin", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(1) /zone help", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(2) /zone add <zone|node|flag> <zonename> <flag>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(3) /zone remove <zone|node|flag> <zonename> <node|flag>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(4) /zone list <zone|zones|nodes|flags> <zonename>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(2) /zone add <zone|node|flag|block> <zonename> <flag|blockeList>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(3) /zone remove <zone|node|flag|block> <zonename> <node|flag|blockList>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(4) /zone list <zone|zones|nodes|flags|blocklists> <zonename>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(5) /zone flags", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(6) /zone inzone", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(7) /zone getpos <playername>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(8) /zone tp node <zonename> <node>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(6) /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(7) /zone inzone", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(8) /zone getpos <playername>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(9) /zone tp node <zonename> <node>", UnityEngine.Color.cyan);
                 return;
             } else
             {
