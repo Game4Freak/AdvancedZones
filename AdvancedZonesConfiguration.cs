@@ -5,6 +5,7 @@ namespace Game4Freak.AdvancedZones
 {
     public class AdvancedZonesConfiguration : IRocketPluginConfiguration
     {
+        public string version;
         // Buildables
         public List<string> BlockedBuildablesListNames;
         public List<List<int>> BlockedBuildables;
@@ -17,9 +18,15 @@ namespace Game4Freak.AdvancedZones
         public List<List<int>> ZoneFlags;
         public List<List<string>> ZoneBlockedBuildables;
         public List<List<string>> ZoneBlockedEquip;
+        public List<List<string>> ZoneEnterAddGroups;
+        public List<List<string>> ZoneEnterRemoveGroups;
+        public List<List<string>> ZoneLeaveAddGroups;
+        public List<List<string>> ZoneLeaveRemoveGroups;
 
         public void LoadDefaults()
         {
+            //version = AdvancedZones.VERSION;
+            version = "";
             // Buildables
             BlockedBuildablesListNames = new List<string> { "ALL", "VanillaStructures", "VanillaBarricades", "Ignore_Book" };
             BlockedBuildables = new List<List<int>> { new List<int>(), new List<int> { 31, 32, 33, 34, 35, 36, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 316, 317, 318, 319, 320, 321, 322, 323, 324, 369, 370, 371, 372, 373, 374, 375, 376, 377, 442,
@@ -41,6 +48,10 @@ namespace Game4Freak.AdvancedZones
             ZoneFlags = new List<List<int>>();
             ZoneBlockedBuildables = new List<List<string>>();
             ZoneBlockedEquip = new List<List<string>>();
+            ZoneEnterAddGroups = new List<List<string>>();
+            ZoneEnterRemoveGroups = new List<List<string>>();
+            ZoneLeaveAddGroups = new List<List<string>>();
+            ZoneLeaveRemoveGroups = new List<List<string>>();
         }
     }
 }

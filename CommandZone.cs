@@ -50,7 +50,7 @@ namespace Game4Freak.AdvancedZones
         public void Execute(IRocketPlayer caller, params string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
-            if (command.Length != 1 && command.Length != 2 && command.Length != 3 && command.Length != 4 && command.Length != 5)
+            if (command.Length != 1 && command.Length != 2 && command.Length != 3 && command.Length != 4 && command.Length != 5 && command.Length != 6)
             {
                 UnturnedChat.Say(caller, "Invalid! Try /zone help or /zone " + Syntax, UnityEngine.Color.red);
                 return;
@@ -60,7 +60,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone add <zone|node|flag> <zonename> <node|flag>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone add <zone|node|flag|> <zonename> <node|flag>", UnityEngine.Color.red);
                     return;
                 }
                 else if (command[1].ToLower() == "zone")
@@ -86,7 +86,10 @@ namespace Game4Freak.AdvancedZones
                         AdvancedZones.Instance.Configuration.Instance.ZoneFlags.Add(new List<int>());
                         AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.Add(new List<string>());
                         AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.Add(new List<string>());
-
+                        AdvancedZones.Instance.Configuration.Instance.ZoneEnterAddGroups.Add(new List<string>());
+                        AdvancedZones.Instance.Configuration.Instance.ZoneEnterRemoveGroups.Add(new List<string>());
+                        AdvancedZones.Instance.Configuration.Instance.ZoneLeaveAddGroups.Add(new List<string>());
+                        AdvancedZones.Instance.Configuration.Instance.ZoneLeaveRemoveGroups.Add(new List<string>());
                         AdvancedZones.Instance.Configuration.Save();
                         UnturnedChat.Say(caller, "Added zone: " + zoneName, UnityEngine.Color.cyan);
                     }
@@ -230,6 +233,95 @@ namespace Game4Freak.AdvancedZones
                             }
                         }
                     }
+                    UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                    return;
+                }
+                else if (command[1].ToLower() == "group")
+                {
+                    if (command.Length < 6)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone add group <zonename> <enter|leave> <add|remove> <group>", UnityEngine.Color.red);
+                        return;
+                    }
+                    foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
+                    {
+                        if (z.ToLower() == command[2].ToLower())
+                        {
+                            if (command[3].ToLower() == "enter")
+                            {
+                                if (command[4].ToLower() == "add")
+                                {
+                                    foreach (var enterAddGroup in AdvancedZones.Instance.Configuration.Instance.ZoneEnterAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (enterAddGroup.ToLower() == command[5])
+                                        {
+                                            UnturnedChat.Say(caller, "Zone already got the group: " + enterAddGroup, UnityEngine.Color.red);
+                                            return;
+                                        }
+                                    }
+                                    AdvancedZones.Instance.Configuration.Instance.ZoneEnterAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Add(command[5]);
+                                    AdvancedZones.Instance.Configuration.Save();
+                                    UnturnedChat.Say(caller, "Added group: " + command[5] + " to zone: " + z + " to add on entering", UnityEngine.Color.cyan);
+                                    return;
+                                }
+                                else if (command[4].ToLower() == "remove")
+                                {
+                                    foreach (var enterRemoveGroup in AdvancedZones.Instance.Configuration.Instance.ZoneEnterRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (enterRemoveGroup.ToLower() == command[5])
+                                        {
+                                            UnturnedChat.Say(caller, "Zone already got the group: " + enterRemoveGroup, UnityEngine.Color.red);
+                                            return;
+                                        }
+                                    }
+                                    AdvancedZones.Instance.Configuration.Instance.ZoneEnterRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Add(command[5]);
+                                    AdvancedZones.Instance.Configuration.Save();
+                                    UnturnedChat.Say(caller, "Added group: " + command[5] + " to zone: " + z + " to remove on entering", UnityEngine.Color.cyan);
+                                    return;
+                                }
+                            }
+                            else if (command[3].ToLower() == "leave")
+                            {
+                                if (command[4].ToLower() == "add")
+                                {
+                                    foreach (var leaveAddGroup in AdvancedZones.Instance.Configuration.Instance.ZoneLeaveAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (leaveAddGroup.ToLower() == command[5])
+                                        {
+                                            UnturnedChat.Say(caller, "Zone already got the group: " + leaveAddGroup, UnityEngine.Color.red);
+                                            return;
+                                        }
+                                    }
+                                    AdvancedZones.Instance.Configuration.Instance.ZoneLeaveAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Add(command[5]);
+                                    AdvancedZones.Instance.Configuration.Save();
+                                    UnturnedChat.Say(caller, "Added group: " + command[5] + " to zone: " + z + " to add on leaveing", UnityEngine.Color.cyan);
+                                    return;
+                                }
+                                else if (command[4].ToLower() == "remove")
+                                {
+                                    foreach (var leaveRemoveGroup in AdvancedZones.Instance.Configuration.Instance.ZoneLeaveRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (leaveRemoveGroup.ToLower() == command[5])
+                                        {
+                                            UnturnedChat.Say(caller, "Zone already got the group: " + leaveRemoveGroup, UnityEngine.Color.red);
+                                            return;
+                                        }
+                                    }
+                                    AdvancedZones.Instance.Configuration.Instance.ZoneLeaveRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Add(command[5]);
+                                    AdvancedZones.Instance.Configuration.Save();
+                                    UnturnedChat.Say(caller, "Added group: " + command[5] + " to zone: " + z + " to remove on leaveing", UnityEngine.Color.cyan);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(caller, "Invalid! Try /zone add group <zonename> <enter|leave> <add|remove> <group>", UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                    }
+                    UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                    return;
                 }
                 else
                 {
@@ -262,6 +354,10 @@ namespace Game4Freak.AdvancedZones
                             AdvancedZones.Instance.Configuration.Instance.ZoneFlags.RemoveAt(x);
                             AdvancedZones.Instance.Configuration.Instance.ZoneBlockedEquip.RemoveAt(x);
                             AdvancedZones.Instance.Configuration.Instance.ZoneBlockedBuildables.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneEnterAddGroups.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneEnterRemoveGroups.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneLeaveAddGroups.RemoveAt(x);
+                            AdvancedZones.Instance.Configuration.Instance.ZoneLeaveRemoveGroups.RemoveAt(x);
                             AdvancedZones.Instance.Configuration.Save();
                             UnturnedChat.Say(caller, "Removed zone: " + z, UnityEngine.Color.cyan);
                             return;
@@ -385,7 +481,7 @@ namespace Game4Freak.AdvancedZones
                                                 return;
                                             }
                                         }
-                                        UnturnedChat.Say(caller, "The zone: " + z + " does not has the BlockList: " + blockList, UnityEngine.Color.red);
+                                        UnturnedChat.Say(caller, "The zone: " + z + " does not have the BlockList: " + blockList, UnityEngine.Color.red);
                                         return;
                                     }
                                 }
@@ -408,7 +504,7 @@ namespace Game4Freak.AdvancedZones
                                                 return;
                                             }
                                         }
-                                        UnturnedChat.Say(caller, "The zone: " + z + " does not has the BlockList: " + blockList, UnityEngine.Color.red);
+                                        UnturnedChat.Say(caller, "The zone: " + z + " does not have the BlockList: " + blockList, UnityEngine.Color.red);
                                         return;
                                     }
                                 }
@@ -422,6 +518,95 @@ namespace Game4Freak.AdvancedZones
                             }
                         }
                     }
+                    UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                    return;
+                }
+                else if (command[1].ToLower() == "group")
+                {
+                    if (command.Length < 6)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone remove group <zonename> <enter|leave> <add|remove> <group>", UnityEngine.Color.red);
+                        return;
+                    }
+                    foreach (var z in AdvancedZones.Instance.Configuration.Instance.ZoneNames)
+                    {
+                        if (z.ToLower() == command[2].ToLower())
+                        {
+                            if (command[3].ToLower() == "enter")
+                            {
+                                if (command[4].ToLower() == "add")
+                                {
+                                    foreach (var enterAddGroup in AdvancedZones.Instance.Configuration.Instance.ZoneEnterAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (enterAddGroup.ToLower() == command[5])
+                                        {
+                                            AdvancedZones.Instance.Configuration.Instance.ZoneEnterAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Remove(enterAddGroup);
+                                            AdvancedZones.Instance.Configuration.Save();
+                                            UnturnedChat.Say(caller, "Removed group: " + enterAddGroup + " from zone: " + z + " from add on entering", UnityEngine.Color.cyan);
+                                            return;
+                                        }
+                                    }
+                                    UnturnedChat.Say(caller, "The zone: " + z + " does not have the group: " + command[5], UnityEngine.Color.red);
+                                    return;
+                                }
+                                else if (command[4].ToLower() == "remove")
+                                {
+                                    foreach (var enterRemoveGroup in AdvancedZones.Instance.Configuration.Instance.ZoneEnterRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (enterRemoveGroup.ToLower() == command[5])
+                                        {
+                                            AdvancedZones.Instance.Configuration.Instance.ZoneEnterRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Remove(enterRemoveGroup);
+                                            AdvancedZones.Instance.Configuration.Save();
+                                            UnturnedChat.Say(caller, "Removed group: " + enterRemoveGroup + " from zone: " + z + " from remove on entering", UnityEngine.Color.cyan);
+                                            return;
+                                        }
+                                    }
+                                    UnturnedChat.Say(caller, "The zone: " + z + " does not have the group: " + command[5], UnityEngine.Color.red);
+                                    return;
+                                }
+                            }
+                            else if (command[3].ToLower() == "leave")
+                            {
+                                if (command[4].ToLower() == "add")
+                                {
+                                    foreach (var leaveAddGroup in AdvancedZones.Instance.Configuration.Instance.ZoneLeaveAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (leaveAddGroup.ToLower() == command[5])
+                                        {
+                                            AdvancedZones.Instance.Configuration.Instance.ZoneLeaveAddGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Remove(leaveAddGroup);
+                                            AdvancedZones.Instance.Configuration.Save();
+                                            UnturnedChat.Say(caller, "Removed group: " + leaveAddGroup + " from zone: " + z + " from add on leaveing", UnityEngine.Color.cyan);
+                                            return;
+                                        }
+                                    }
+                                    UnturnedChat.Say(caller, "The zone: " + z + " does not have the group: " + command[5], UnityEngine.Color.red);
+                                    return;
+                                }
+                                else if (command[4].ToLower() == "remove")
+                                {
+                                    foreach (var leaveRemoveGroup in AdvancedZones.Instance.Configuration.Instance.ZoneLeaveRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)))
+                                    {
+                                        if (leaveRemoveGroup.ToLower() == command[5])
+                                        {
+                                            AdvancedZones.Instance.Configuration.Instance.ZoneLeaveRemoveGroups.ElementAt(AdvancedZones.Instance.Configuration.Instance.ZoneNames.IndexOf(z)).Remove(leaveRemoveGroup);
+                                            AdvancedZones.Instance.Configuration.Save();
+                                            UnturnedChat.Say(caller, "Removed group: " + leaveRemoveGroup + " from zone: " + z + " from remove on leaveing", UnityEngine.Color.cyan);
+                                            return;
+                                        }
+                                    }
+                                    UnturnedChat.Say(caller, "The zone: " + z + " does not have the group: " + command[5], UnityEngine.Color.red);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(caller, "Invalid! Try /zone remove group <zonename> <enter|leave> <add|remove> <group>", UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                    }
+                    UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                    return;
                 }
                 else
                 {
@@ -571,6 +756,43 @@ namespace Game4Freak.AdvancedZones
                                 message = message + blocked + ", ";
                             }
                             UnturnedChat.Say(caller, message + "}", UnityEngine.Color.cyan);
+                            return;
+                        }
+                    }
+                    UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                }
+                else if (command[1].ToLower() == "groups")
+                {
+                    if (command.Length < 3)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone list groups <zonename>", UnityEngine.Color.red);
+                        return;
+                    }
+                    foreach (var z in AdvancedZones.Instance.convertConfigToZone())
+                    {
+                        if (z.getName().ToLower() == command[2].ToLower())
+                        {
+                            string message = "Groups of zone: " + z.getName() + ": Enter{Add{";
+                            foreach (var enterAddGroup in z.getEnterAddGroups())
+                            {
+                                message = message + enterAddGroup + ", ";
+                            }
+                            message = message + "}, Remove{";
+                            foreach (var enterRemoveGroup in z.getEnterRemoveGroups())
+                            {
+                                message = message + enterRemoveGroup + ", ";
+                            }
+                            message = message + "}}, Leave{Add{";
+                            foreach (var leaveAddGroup in z.getLeaveAddGroups())
+                            {
+                                message = message + leaveAddGroup + ", ";
+                            }
+                            message = message + "}, Remove{";
+                            foreach (var leaveRemoveGroup in z.getLeaveRemoveGroups())
+                            {
+                                message = message + leaveRemoveGroup + ", ";
+                            }
+                            UnturnedChat.Say(caller, message + "}}", UnityEngine.Color.cyan);
                             return;
                         }
                     }
@@ -1004,9 +1226,9 @@ namespace Game4Freak.AdvancedZones
             {
                 UnturnedChat.Say(caller, "These are all commands of the AdvancedZones-Plugin", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(1) /zone help", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(2) /zone add <zone|node|flag|block> <zonename> <flag|blockeList>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(3) /zone remove <zone|node|flag|block> <zonename> <node|flag|blockList>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(4) /zone list <zone|zones|nodes|flags|blocklists> <zonename>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(2) /zone add <zone|node|flag|block|group> <zonename> <flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(3) /zone remove <zone|node|flag|block> <zonename> <flag|equip|build|enter|leave> <blockList|group>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(4) /zone list <zone|zones|nodes|flags|blocklists|groups> <zonename>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(5) /zone flags", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(6) /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(7) /zone inzone", UnityEngine.Color.cyan);
