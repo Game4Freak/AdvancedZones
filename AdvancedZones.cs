@@ -205,6 +205,7 @@ namespace Game4Freak.AdvancedZones
             ZombieManager.getZombiesInRadius(new Vector3(0, 0, 0), 1000000, result: zombies);
             foreach (var zombie in zombies)
             {
+                ZombieManager.sendZombieDead(zombie, zombie.transform.position);
                 zombie.shirt = 166;
             }*/
         }
@@ -213,8 +214,11 @@ namespace Game4Freak.AdvancedZones
         {
             if (zone.hasFlag(Zone.noLeave))
             {
-                player.Teleport(lastPos, player.Rotation);
-                return;
+                if (!player.HasPermission("advancedzones.override.noleave") && !player.HasPermission("advancedzones.override.noleave." + zone.getName().ToLower()))
+                {
+                    player.Teleport(new Vector3(lastPos.x, lastPos.y - (float)0.6, lastPos.z), player.Rotation);
+                    return;
+                }
             }
             if (zone.hasFlag(Zone.leaveMessage))
             {
@@ -240,8 +244,11 @@ namespace Game4Freak.AdvancedZones
         {
             if (zone.hasFlag(Zone.noEnter))
             {
-                player.Teleport(lastPos, player.Rotation);
-                return;
+                if (!player.HasPermission("advancedzones.override.noenter") && !player.HasPermission("advancedzones.override.noenter." + zone.getName().ToLower()))
+                {
+                    player.Teleport(new Vector3(lastPos.x, lastPos.y - (float)0.6, lastPos.z), player.Rotation);
+                    return;
+                }
             }
             if (zone.hasFlag(Zone.enterMessage))
             {
