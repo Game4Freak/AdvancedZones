@@ -27,7 +27,7 @@ namespace Game4Freak.AdvancedZones
         /**
          * TODO:
          * Message on Enter / Leave (custom messages)
-         * add group and remove group on enter / leave
+         * noZombie Flag
          * Translations
          * Node visuals (brick pillar, maybe map-nodes)
          * 

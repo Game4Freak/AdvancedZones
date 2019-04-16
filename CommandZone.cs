@@ -52,7 +52,7 @@ namespace Game4Freak.AdvancedZones
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length != 1 && command.Length != 2 && command.Length != 3 && command.Length != 4 && command.Length != 5 && command.Length != 6)
             {
-                UnturnedChat.Say(caller, "Invalid! Try /zone help or /zone " + Syntax, UnityEngine.Color.red);
+                UnturnedChat.Say(caller, "Invalid! Try /zone help" + Syntax, UnityEngine.Color.red);
                 return;
             }
             // ADD
@@ -60,7 +60,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone add <zone|node|flag|> <zonename> <node|flag>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone add /zone add <zone|node|flag|block|group> <zonename> <flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.red);
                     return;
                 }
                 else if (command[1].ToLower() == "zone")
@@ -325,7 +325,7 @@ namespace Game4Freak.AdvancedZones
                 }
                 else
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone add <zone|node|flag> <zonename> <node|flag>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone add /zone add <zone|node|flag|block|group> <zonename> <flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.red);
                     return;
                 }
             }
@@ -334,7 +334,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag> <zonename> <node|flag>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag|block|group> <zonename> <node|flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.red);
                     return;
                 }
                 else if (command[1].ToLower() == "zone")
@@ -610,7 +610,7 @@ namespace Game4Freak.AdvancedZones
                 }
                 else
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag> <zonename> <node|flag>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag|block|group> <zonename> <node|flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.red);
                     return;
                 }
             }
@@ -619,7 +619,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags> <zonename>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags|blocklists|groups> <zonename>", UnityEngine.Color.red);
                     return;
                 }
                 if (command[1].ToLower() == "zone")
@@ -800,7 +800,7 @@ namespace Game4Freak.AdvancedZones
                 }
                 else
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags> <zonename>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags|blocklists|groups> <zonename>", UnityEngine.Color.red);
                     return;
                 }
             }
@@ -1227,7 +1227,7 @@ namespace Game4Freak.AdvancedZones
                 UnturnedChat.Say(caller, "These are all commands of the AdvancedZones-Plugin", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(1) /zone help", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(2) /zone add <zone|node|flag|block|group> <zonename> <flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(3) /zone remove <zone|node|flag|block> <zonename> <flag|equip|build|enter|leave> <blockList|group>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(3) /zone remove <zone|node|flag|block|group> <zonename> <node|flag|equip|build|enter|leave> <blockList|add|remove> <group>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(4) /zone list <zone|zones|nodes|flags|blocklists|groups> <zonename>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(5) /zone flags", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(6) /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.cyan);
