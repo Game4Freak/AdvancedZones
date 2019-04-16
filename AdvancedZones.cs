@@ -11,6 +11,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using UnityEngine;
 using Logger = Rocket.Core.Logging.Logger;
@@ -201,12 +202,18 @@ namespace Game4Freak.AdvancedZones
                     onPlayerEquiped(player.Player, player.Player.equipment);
                 }
             }
-            /*List<Zombie> zombies = new List<Zombie>();
-            ZombieManager.getZombiesInRadius(new Vector3(0, 0, 0), 1000000, result: zombies);
-            foreach (var zombie in zombies)
+            /*if (ZombieManager.regions == null) return;
+            foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
             {
-                ZombieManager.sendZombieDead(zombie, zombie.transform.position);
-                zombie.shirt = 166;
+                foreach (var zombie in t.zombies.Where(z => z != null && z.transform?.position != null))
+                {
+                    if (zombie.isDead) continue;
+                    if (!transformInZoneType(zombie.transform, Zone.noZombie)) continue;
+                    zombie.gear = 0;
+                    zombie.isDead = true;
+                    Vector3 ragdoll = (Vector3)typeof(Zombie).GetField("ragdoll", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(zombie);
+                    ZombieManager.sendZombieDead(zombie, ragdoll);
+                }
             }*/
         }
 
@@ -511,7 +518,7 @@ namespace Game4Freak.AdvancedZones
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.noVehicleDamage) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.lockpick." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.noLockpick) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.lockpick." + zone.getName()).ToLower()))
                     {
                         allow = false; ;
                     }
