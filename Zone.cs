@@ -17,8 +17,8 @@ namespace Game4Freak.AdvancedZones
         private List<string> leaveAddGroups;
         private List<string> leaveRemoveGroups;
         public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup" };
-        public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of buildables", "No equiping of specific items", "No damage on tires",
-            "No entering the zone", "No leaving the zone", "Message on entering the zone", "message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone" };
+        public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of specific buildables", "No equiping of specific items", "No damage on tires",
+            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone" };
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
