@@ -22,6 +22,8 @@ namespace Game4Freak.AdvancedZones
         public List<List<string>> ZoneEnterRemoveGroups;
         public List<List<string>> ZoneLeaveAddGroups;
         public List<List<string>> ZoneLeaveRemoveGroups;
+        public List<List<string>> ZoneEnterMessages;
+        public List<List<string>> ZoneLeaveMessages;
 
         public void LoadDefaults()
         {
@@ -52,6 +54,8 @@ namespace Game4Freak.AdvancedZones
             ZoneEnterRemoveGroups = new List<List<string>>();
             ZoneLeaveAddGroups = new List<List<string>>();
             ZoneLeaveRemoveGroups = new List<List<string>>();
+            ZoneEnterMessages = new List<List<string>>();
+            ZoneLeaveMessages = new List<List<string>>();
         }
     }
 }

@@ -16,9 +16,11 @@ namespace Game4Freak.AdvancedZones
         private List<string> enterRemoveGroups;
         private List<string> leaveAddGroups;
         private List<string> leaveRemoveGroups;
-        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup" };
+        private List<string> enterMessages;
+        private List<string> leaveMessages;
+        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator" };
         public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of specific buildables", "No equiping of specific items", "No damage on tires",
-            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone" };
+            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No Zombies", "Infinitely running generators" };
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
@@ -34,6 +36,8 @@ namespace Game4Freak.AdvancedZones
         public static int enterRemoveGroup = 12;
         public static int leaveAddGroup = 13;
         public static int leaveRemoveGroup = 14;
+        public static int noZombie = 15;
+        public static int infiniteGenerator = 16;
 
         public Zone()
         {
@@ -46,6 +50,8 @@ namespace Game4Freak.AdvancedZones
             enterRemoveGroups = new List<string>();
             leaveAddGroups = new List<string>();
             leaveRemoveGroups = new List<string>();
+            enterMessages = new List<string>();
+            leaveMessages = new List<string>();
         }
 
         public Zone(string zoneName)
@@ -59,6 +65,8 @@ namespace Game4Freak.AdvancedZones
             enterRemoveGroups = new List<string>();
             leaveAddGroups = new List<string>();
             leaveRemoveGroups = new List<string>();
+            enterMessages = new List<string>();
+            leaveMessages = new List<string>();
         }
 
         public void addNode(Node node)
@@ -203,6 +211,38 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
+        public void addEnterMessage(string message)
+        {
+            if (!enterMessages.Contains(message))
+            {
+                enterMessages.Add(message);
+            }
+        }
+
+        public void removeEnterMessage(string message)
+        {
+            if (enterMessages.Contains(message))
+            {
+                enterMessages.Remove(message);
+            }
+        }
+
+        public void addLeaveMessage(string message)
+        {
+            if (!leaveMessages.Contains(message))
+            {
+                leaveMessages.Add(message);
+            }
+        }
+
+        public void removeLeaveMessage(string message)
+        {
+            if (leaveMessages.Contains(message))
+            {
+                leaveMessages.Remove(message);
+            }
+        }
+
         public string getName()
         {
             return name;
@@ -246,6 +286,16 @@ namespace Game4Freak.AdvancedZones
         public List<string> getLeaveRemoveGroups()
         {
             return leaveRemoveGroups;
+        }
+
+        public List<string> getEnterMessages()
+        {
+            return enterMessages;
+        }
+
+        public List<string> getleaveMessages()
+        {
+            return leaveMessages;
         }
 
         public bool isReady()
