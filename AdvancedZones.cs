@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.0.0";
+        public const string VERSION = "0.7.1.0";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
