@@ -1614,7 +1614,6 @@ namespace Game4Freak.AdvancedZones
                                 List<Transform> transforms = new List<Transform>();
                                 StructureManager.getStructuresInRadius(new Vector3(node.x, node.y + (float)2.5, node.z), 2, coordinates, transforms);
                                 StructureManager.getStructuresInRadius(new Vector3(node.x, node.y + (float)7.5, node.z), 2, coordinates, transforms);
-                                UnturnedChat.Say(transforms.Count.ToString());
                                 foreach (var transform in transforms)
                                 {
                                     if (transform.position == new Vector3(node.x, node.y + (float)2.5, node.z) || transform.position == new Vector3(node.x, node.y + (float)7.5, node.z))
@@ -1687,7 +1686,6 @@ namespace Game4Freak.AdvancedZones
                                 List<Transform> transforms = new List<Transform>();
                                 StructureManager.getStructuresInRadius(new Vector3(position.x, position.y + (float)2.5, position.z), 2, coordinates, transforms);
                                 StructureManager.getStructuresInRadius(new Vector3(position.x, position.y + (float)7.5, position.z), 2, coordinates, transforms);
-                                UnturnedChat.Say(transforms.Count.ToString());
                                 foreach (var transform in transforms)
                                 {
                                     if (transform.position == new Vector3(position.x, position.y + (float)2.5, position.z) || transform.position == new Vector3(position.x, position.y + (float)7.5, position.z))
