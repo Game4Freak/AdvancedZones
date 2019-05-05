@@ -1610,7 +1610,16 @@ namespace Game4Freak.AdvancedZones
                                 byte x;
                                 byte y;
                                 Regions.tryGetCoordinate(new Vector3(node.x, node.y, node.z), out x, out y);
-                                StructureManager.askClearRegionStructures(x, y);
+                                List<RegionCoordinate> coordinates = new List<RegionCoordinate>() { new RegionCoordinate(x, y) };
+                                List<Transform> transforms = new List<Transform>();
+                                StructureManager.getStructuresInRadius(new Vector3(node.x, node.y + (float)2.5, node.z), 2, coordinates, transforms);
+                                StructureManager.getStructuresInRadius(new Vector3(node.x, node.y + (float)7.5, node.z), 2, coordinates, transforms);
+                                UnturnedChat.Say(transforms.Count.ToString());
+                                foreach (var transform in transforms)
+                                {
+                                    if (transform.position == new Vector3(node.x, node.y + (float)2.5, node.z) || transform.position == new Vector3(node.x, node.y + (float)7.5, node.z))
+                                        StructureManager.damage(transform, transform.position, 800, 10, false);
+                                }
                             }
                             UnturnedChat.Say(caller, "Disabled visualizing nodes of zone: " + currentZone.getName(), UnityEngine.Color.cyan);
                         }
@@ -1674,7 +1683,16 @@ namespace Game4Freak.AdvancedZones
                                 byte x;
                                 byte y;
                                 Regions.tryGetCoordinate(new Vector3(position.x, position.y, position.z), out x, out y);
-                                StructureManager.askClearRegionStructures(x, y);
+                                List<RegionCoordinate> coordinates = new List<RegionCoordinate>() { new RegionCoordinate(x, y) };
+                                List<Transform> transforms = new List<Transform>();
+                                StructureManager.getStructuresInRadius(new Vector3(position.x, position.y + (float)2.5, position.z), 2, coordinates, transforms);
+                                StructureManager.getStructuresInRadius(new Vector3(position.x, position.y + (float)7.5, position.z), 2, coordinates, transforms);
+                                UnturnedChat.Say(transforms.Count.ToString());
+                                foreach (var transform in transforms)
+                                {
+                                    if (transform.position == new Vector3(position.x, position.y + (float)2.5, position.z) || transform.position == new Vector3(position.x, position.y + (float)7.5, position.z))
+                                        StructureManager.damage(transform, transform.position, 800, 10, false);
+                                }
                             }
                             UnturnedChat.Say(caller, "Disabled visualizing border of zone: " + currentZone.getName(), UnityEngine.Color.cyan);
                         }
@@ -1708,7 +1726,7 @@ namespace Game4Freak.AdvancedZones
                 UnturnedChat.Say(caller, "(2) /zone wiki", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(3) /zone add <zone|node|flag|block|group|message|parameter|heightnode> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|message|add|remove|heightoffset> <group>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(4) /zone remove <zone|node|flag|block|group|message|parameter|heightnode> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|messageNum|add|remove> <group>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(5) /zone replace <zone|node> <zonename> <newzonename|newnode>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(5) /zone replace <zone|node> <zonename> <newzonename|node>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(6) /zone list <zone|zones|nodes|flags|blocklists|groups|messages|parameters|heightnodes> <zonename>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(7) /zone flags", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(8) /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.cyan);
