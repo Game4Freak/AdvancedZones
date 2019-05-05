@@ -80,8 +80,13 @@
   <ItemGroup>
     <Compile Include="AdvancedZones.cs" />
     <Compile Include="AdvancedZonesConfiguration.cs" />
+    <Compile Include="BuildBlocklist.cs" />
+    <Compile Include="EquipBlocklist.cs" />
     <Compile Include="CommandZone.cs" />
+    <Compile Include="CustomFlag.cs" />
+    <Compile Include="HeightNode.cs" />
     <Compile Include="Node.cs" />
+    <Compile Include="Parameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Zone.cs" />
   </ItemGroup>

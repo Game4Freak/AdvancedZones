@@ -1,26 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Xml.Serialization;
 
 namespace Game4Freak.AdvancedZones
 {
     public class Zone
     {
-        private string name;
-        private Node[] nodes;
-        private List<int> flags;
-        private List<string> blockedBuildables;
-        private List<string> blockedEquips;
-        private List<string> enterAddGroups;
-        private List<string> enterRemoveGroups;
-        private List<string> leaveAddGroups;
-        private List<string> leaveRemoveGroups;
-        private List<string> enterMessages;
-        private List<string> leaveMessages;
+        [XmlAttribute("name")]
+        public string name;
+        [XmlArrayItem(ElementName = "node")]
+        public Node[] nodes;
+        [XmlArrayItem(ElementName = "heightNode")]
+        public HeightNode[] heightNodes;
+        [XmlArrayItem(ElementName = "flag")]
+        public List<string> flags;
+        [XmlArrayItem(ElementName = "buildBlocklist")]
+        public List<string> buildBlocklists;
+        [XmlArrayItem(ElementName = "equipBlocklist")]
+        public List<string> equipBlocklists;
+        [XmlArrayItem(ElementName = "enterAddGroup")]
+        public List<string> enterAddGroups;
+        [XmlArrayItem(ElementName = "enterRemoveGroup")]
+        public List<string> enterRemoveGroups;
+        [XmlArrayItem(ElementName = "leaveAddGroup")]
+        public List<string> leaveAddGroups;
+        [XmlArrayItem(ElementName = "leaveRemoveGroup")]
+        public List<string> leaveRemoveGroups;
+        [XmlArrayItem(ElementName = "enterMessage")]
+        public List<string> enterMessages;
+        [XmlArrayItem(ElementName = "leaveMessage")]
+        public List<string> leaveMessages;
+        [XmlArrayItem(ElementName = "parameter")]
+        public List<Parameter> parameters;
+
         public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator" };
         public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of specific buildables", "No equiping of specific items", "No damage on tires",
-            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No Zombies", "Infinitely running generators" };
+            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No zombies", "Infinitely running generators" };
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
@@ -43,30 +58,34 @@ namespace Game4Freak.AdvancedZones
         {
             name = "";
             nodes = new Node[] { };
-            flags = new List<int>();
-            blockedBuildables = new List<string>();
-            blockedEquips = new List<string>();
+            heightNodes = new HeightNode[2];
+            flags = new List<string>();
+            buildBlocklists = new List<string>();
+            equipBlocklists = new List<string>();
             enterAddGroups = new List<string>();
             enterRemoveGroups = new List<string>();
             leaveAddGroups = new List<string>();
             leaveRemoveGroups = new List<string>();
             enterMessages = new List<string>();
             leaveMessages = new List<string>();
+            parameters = new List<Parameter>();
         }
-
+        
         public Zone(string zoneName)
         {
             name = zoneName;
             nodes = new Node[] { };
-            flags = new List<int>();
-            blockedBuildables = new List<string>();
-            blockedEquips = new List<string>();
+            heightNodes = new HeightNode[2];
+            flags = new List<string>();
+            buildBlocklists = new List<string>();
+            equipBlocklists = new List<string>();
             enterAddGroups = new List<string>();
             enterRemoveGroups = new List<string>();
             leaveAddGroups = new List<string>();
             leaveRemoveGroups = new List<string>();
             enterMessages = new List<string>();
             leaveMessages = new List<string>();
+            parameters = new List<Parameter>();
         }
 
         public void addNode(Node node)
@@ -94,7 +113,39 @@ namespace Game4Freak.AdvancedZones
             nodes = nodeList.ToArray();
         }
 
-        public void addFlag(int flag)
+        public void addHeightNode(HeightNode heightNode)
+        {
+            if (heightNodes[0] == null)
+                heightNodes[0] = heightNode;
+            if (heightNode.isUpper != heightNodes[0].isUpper)
+                heightNodes[1] = heightNode;
+            else
+                heightNodes[0] = heightNode;
+        }
+
+        public void removeHeightNode(bool isUpper)
+        {
+            if (heightNodes[0] == null)
+                return;
+            if (heightNodes[0].isUpper == isUpper)
+            {
+                if (heightNodes[1] != null)
+                {
+                    heightNodes[0] = heightNodes[1];
+                    heightNodes[1] = null;
+                    return;
+                }
+                heightNodes[0] = null;
+                return;
+            }
+            else if (heightNodes[1] != null)
+            {
+                heightNodes[1] = null;
+                return;
+            }
+        }
+
+        public void addFlag(string flag)
         {
             if (!flags.Contains(flag))
             {
@@ -102,7 +153,7 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
-        public void removeFlag(int flag)
+        public void removeFlag(string flag)
         {
             if (flags.Contains(flag))
             {
@@ -110,40 +161,40 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
-        public bool hasFlag(int flag)
+        public bool hasFlag(string flag)
         {
             return flags.Contains(flag);
         }
 
-        public void addBlockedBuildable(string blockedBuildable)
+        public void addBuildBlocklist(string blocklistName)
         {
-            if (!blockedBuildables.Contains(blockedBuildable))
+            if (!buildBlocklists.Contains(blocklistName))
             {
-                blockedBuildables.Add(blockedBuildable);
+                buildBlocklists.Add(blocklistName);
             }
         }
 
-        public void removeBlockedBuildable(string blockedBuildable)
+        public void removeBuildBlocklist(string blocklistName)
         {
-            if (blockedBuildables.Contains(blockedBuildable))
+            if (buildBlocklists.Contains(blocklistName))
             {
-                blockedBuildables.Remove(blockedBuildable);
+                buildBlocklists.Remove(blocklistName);
             }
         }
 
-        public void addBlockedEquip(string blockedEquip)
+        public void addEquipBlocklist(string blocklistName)
         {
-            if (!blockedEquips.Contains(blockedEquip))
+            if (!equipBlocklists.Contains(blocklistName))
             {
-                blockedEquips.Add(blockedEquip);
+                equipBlocklists.Add(blocklistName);
             }
         }
 
-        public void removeBlockedEquip(string blockedEquip)
+        public void removeEquipBlocklist(string blocklistName)
         {
-            if (blockedEquips.Contains(blockedEquip))
+            if (equipBlocklists.Contains(blocklistName))
             {
-                blockedEquips.Remove(blockedEquip);
+                equipBlocklists.Remove(blocklistName);
             }
         }
 
@@ -243,6 +294,28 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
+        public void addParameter(string parameterName, List<string> parameterValues)
+        {
+            foreach (var parameter in parameters)
+            {
+                if (parameter.name == parameterName)
+                    return;
+            }
+            parameters.Add(new Parameter(parameterName, parameterValues));
+        }
+
+        public void removeParameter(string parameterName)
+        {
+            foreach (var parameter in parameters)
+            {
+                if (parameter.name == parameterName)
+                {
+                    parameters.Remove(parameter);
+                    return;
+                }
+            }
+        }
+
         public string getName()
         {
             return name;
@@ -253,19 +326,24 @@ namespace Game4Freak.AdvancedZones
             return nodes;
         }
 
-        public List<int> getFlags()
+        public HeightNode[] GetHeightNodes()
+        {
+            return heightNodes;
+        }
+
+        public List<string> getFlags()
         {
             return flags;
         }
 
-        public List<string> getBlockedBuildables()
+        public List<string> getBuildBlocklists()
         {
-            return blockedBuildables;
+            return buildBlocklists;
         }
         
-        public List<string> getBlockedEquips()
+        public List<string> getEquipBlocklists()
         {
-            return blockedEquips;
+            return equipBlocklists;
         }
 
         public List<string> getEnterAddGroups()
@@ -296,6 +374,11 @@ namespace Game4Freak.AdvancedZones
         public List<string> getleaveMessages()
         {
             return leaveMessages;
+        }
+
+        public List<Parameter> GetParameters()
+        {
+            return parameters;
         }
 
         public bool isReady()

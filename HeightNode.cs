@@ -2,7 +2,7 @@
 
 namespace Game4Freak.AdvancedZones
 {
-    public class Node
+    public class HeightNode
     {
         [XmlElement("x")]
         public float x;
@@ -10,16 +10,19 @@ namespace Game4Freak.AdvancedZones
         public float z;
         [XmlElement("y")]
         public float y;
+        [XmlElement("isUpper")]
+        public bool isUpper;
         
-        public Node()
+        public HeightNode()
         {
         }
 
-        public Node(float nX, float nZ, float nY)
+        public HeightNode(float nX, float nZ, float nY, bool nIsUpper)
         {
             x = nX;
             z = nZ;
             y = nY;
+            isUpper = nIsUpper;
         }
     }
 }
