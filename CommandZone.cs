@@ -1712,9 +1712,10 @@ namespace Game4Freak.AdvancedZones
                 UnturnedChat.Say(caller, "(6) /zone list <zone|zones|nodes|flags|blocklists|groups|messages|parameters|heightnodes> <zonename>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(7) /zone flags", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(8) /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(9) /zone inzone", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(10) /zone getpos <playername>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(11) /zone tp node <zonename> <node>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(9) /zone <visualize|show> <nodes|border> <zonename> <on|off>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(10) /zone inzone", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(11) /zone getpos <playername>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(12) /zone tp node <zonename> <node>", UnityEngine.Color.cyan);
                 return;
             } else
             {
