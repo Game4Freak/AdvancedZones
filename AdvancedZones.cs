@@ -33,7 +33,7 @@ namespace Game4Freak.AdvancedZones
 
         public delegate void onZoneEnterHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos);
         public static onZoneEnterHandler onZoneEnter;
-        
+       
         /**
          * TODO:
          * Translations
