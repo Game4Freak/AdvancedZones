@@ -1589,6 +1589,11 @@ namespace Game4Freak.AdvancedZones
                     UnturnedChat.Say(caller, "Invalid! Try /zone visualize <nodes|border> <zonename> <on|off>", UnityEngine.Color.red);
                     return;
                 }
+                float space = 5;
+                if (command.Length < 5)
+                {
+                    float.TryParse(command[4], out space);
+                }
                 Zone currentZone = AdvancedZones.Instance.getZoneByName(command[2]);
                 if (currentZone != null)
                 {
@@ -1644,9 +1649,9 @@ namespace Game4Freak.AdvancedZones
                                 Vector3 direction = new Vector3(nextNode.x, nextNode.y, nextNode.z) - new Vector3(node.x, node.y, node.z);
                                 float magnitude = direction.magnitude;
                                 int x = 0;
-                                while (magnitude > x * 5)
+                                while (magnitude > x * space)
                                 {
-                                    positions.Add(new Vector3(node.x, node.y, node.z) + direction.normalized * 5 * x);
+                                    positions.Add(new Vector3(node.x, node.y, node.z) + direction.normalized * space * x);
                                     x++;
                                 }
                             }
@@ -1671,9 +1676,9 @@ namespace Game4Freak.AdvancedZones
                                 Vector3 direction = new Vector3(nextNode.x, nextNode.y, nextNode.z) - new Vector3(node.x, node.y, node.z);
                                 float magnitude = direction.magnitude;
                                 int x = 0;
-                                while (magnitude > x * 5)
+                                while (magnitude > x * space)
                                 {
-                                    positions.Add(new Vector3(node.x, node.y, node.z) + direction.normalized * 5 * x);
+                                    positions.Add(new Vector3(node.x, node.y, node.z) + direction.normalized * space * x);
                                     x++;
                                 }
                             }
