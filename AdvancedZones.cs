@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.1.0";
+        public const string VERSION = "0.7.2.0";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -220,7 +220,7 @@ namespace Game4Freak.AdvancedZones
             }
             Configuration.Save();
             // Convert config to new config style IMPORTANT: remove upper part and clearing lists for the next update
-            if (Configuration.Instance.version != VERSION)
+            if (Configuration.Instance.version != VERSION && Configuration.Instance.version != "0.7.0.0" && Configuration.Instance.version != "0.7.1.0" )
             {
                 Logger.Log("Converting old Xml layout into the new one");
 
@@ -554,7 +554,7 @@ namespace Game4Freak.AdvancedZones
             {
                 return;
             }
-            if (cause == EDeathCause.LANDMINE || cause == EDeathCause.SHRED || cause == EDeathCause.SENTRY || cause == EDeathCause.VEHICLE || cause == EDeathCause.ROADKILL)
+            if (cause == EDeathCause.LANDMINE || cause == EDeathCause.SHRED || cause == EDeathCause.SENTRY || cause == EDeathCause.VEHICLE || cause == EDeathCause.ROADKILL || cause == EDeathCause.ACID)
             {
                 if (playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]))
                 {
