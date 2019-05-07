@@ -22,7 +22,8 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.2.0";
+        public const string VERSION = "0.7.2.1";
+        private List<string> Versions = new List<string>() { "0.7.0.0", "0.7.1.0", "0.7.2.0", "0.7.2.1" };
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -71,6 +72,7 @@ namespace Game4Freak.AdvancedZones
                     notifyUpdate = true;
                 }
             }
+
             // Update config
             if (Configuration.Instance.version != VERSION)
             {
@@ -107,6 +109,9 @@ namespace Game4Freak.AdvancedZones
         {
             lastPosition.Clear();
 
+            // Init
+            onZoneLeave -= onZoneLeft;
+            onZoneEnter -= onZoneEntered;
             // Enter / Leave
             U.Events.OnPlayerConnected -= onPlayerConnection;
             U.Events.OnPlayerDisconnected -= onPlayerDisconnection;
@@ -220,7 +225,11 @@ namespace Game4Freak.AdvancedZones
             }
             Configuration.Save();
             // Convert config to new config style IMPORTANT: remove upper part and clearing lists for the next update
-            if (Configuration.Instance.version != VERSION && Configuration.Instance.version != "0.7.0.0" && Configuration.Instance.version != "0.7.1.0" )
+            bool isOld = true;
+            foreach (var version in Versions)
+                if (Configuration.Instance.version == version)
+                    isOld = false;
+            if (isOld)
             {
                 Logger.Log("Converting old Xml layout into the new one");
 
