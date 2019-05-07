@@ -1590,7 +1590,7 @@ namespace Game4Freak.AdvancedZones
                     return;
                 }
                 float space = 5;
-                if (command.Length < 5)
+                if (command.Length > 4)
                 {
                     float.TryParse(command[4], out space);
                 }

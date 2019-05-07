@@ -22,8 +22,8 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.2.1";
-        private List<string> Versions = new List<string>() { "0.7.0.0", "0.7.1.0", "0.7.2.0", "0.7.2.1" };
+        public const string VERSION = "0.7.2.2";
+        private List<string> Versions = new List<string>() { "0.7.0.0", "0.7.1.0", "0.7.2.0", "0.7.2.1", "0.7.2.2" };
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
