@@ -33,9 +33,9 @@ namespace Game4Freak.AdvancedZones
         [XmlArrayItem(ElementName = "parameter")]
         public List<Parameter> parameters;
 
-        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator" };
+        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator", "noVehicleCarjack" };
         public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of specific buildables", "No equiping of specific items", "No damage on tires",
-            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No zombies", "Infinitely running generators" };
+            "No entering the zone", "No leaving the zone", "Message on entering the zone", "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No zombies", "Infinitely running generators", "No carjacking of vehicles" };
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
@@ -53,6 +53,7 @@ namespace Game4Freak.AdvancedZones
         public static int leaveRemoveGroup = 14;
         public static int noZombie = 15;
         public static int infiniteGenerator = 16;
+        public static int noVehicleCarjack = 17;
 
         public Zone()
         {

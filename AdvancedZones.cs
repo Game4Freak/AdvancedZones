@@ -22,8 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.2.2";
-        private List<string> Versions = new List<string>() { "0.7.0.0", "0.7.1.0", "0.7.2.0", "0.7.2.1", "0.7.2.2" };
+        public const string VERSION = "0.7.3.0";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -66,7 +65,7 @@ namespace Game4Freak.AdvancedZones
             }
             if (newVersion != null)
             {
-                if (VERSION != newVersion)
+                if (compareVersion(newVersion, VERSION))
                 {
                     Logger.Log("A new AdvancedZones version (" + newVersion + ") is available !!!");
                     notifyUpdate = true;
@@ -74,7 +73,7 @@ namespace Game4Freak.AdvancedZones
             }
 
             // Update config
-            if (Configuration.Instance.version != VERSION)
+            if (compareVersion(VERSION, Configuration.Instance.version))
             {
                 updateConfig();
                 Configuration.Instance.version = VERSION;
@@ -100,6 +99,7 @@ namespace Game4Freak.AdvancedZones
             VehicleManager.onDamageVehicleRequested += onVehicleDamage;
             DamageTool.playerDamaged += onPlayerDamage;
             VehicleManager.onDamageTireRequested += onTireDamage;
+            VehicleManager.onVehicleCarjacked += onVehicleCarjack;
             // Block Buildable
             BarricadeManager.onDeployBarricadeRequested += onBarricadeDeploy;
             StructureManager.onDeployStructureRequested += onStructureDepoly;
@@ -122,6 +122,7 @@ namespace Game4Freak.AdvancedZones
             VehicleManager.onDamageVehicleRequested -= onVehicleDamage;
             DamageTool.playerDamaged -= onPlayerDamage;
             VehicleManager.onDamageTireRequested -= onTireDamage;
+            VehicleManager.onVehicleCarjacked -= onVehicleCarjack;
             // Block Buildable
             BarricadeManager.onDeployBarricadeRequested -= onBarricadeDeploy;
             StructureManager.onDeployStructureRequested -= onStructureDepoly;
@@ -129,107 +130,8 @@ namespace Game4Freak.AdvancedZones
 
         private void updateConfig()
         {
-            // ALWAYS UPDATES WHEN NEW THING ARE ADDED TO THE CONFIG
-            Logger.Log("Updating plugin config");
-
-            if (Configuration.Instance.ZoneNodes.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneNodes.Count); i++)
-                {
-                    Configuration.Instance.ZoneNodes.Add(new List<float[]>());
-                }
-            }
-            if (Configuration.Instance.ZoneFlags.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneFlags.Count); i++)
-                {
-                    Configuration.Instance.ZoneFlags.Add(new List<int>());
-                }
-            }
-            if (Configuration.Instance.ZoneBlockedBuildables.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneBlockedBuildables.Count); i++)
-                {
-                    Configuration.Instance.ZoneBlockedBuildables.Add(new List<string>());
-                }
-            }
-            if (Configuration.Instance.ZoneBlockedEquip.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneBlockedEquip.Count); i++)
-                {
-                    Configuration.Instance.ZoneBlockedEquip.Add(new List<string>());
-                }
-            }
-            // Added in 0.5.0.0
-            if (Configuration.Instance.ZoneEnterAddGroups.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneEnterAddGroups.Count); i++)
-                {
-                    Configuration.Instance.ZoneEnterAddGroups.Add(new List<string>());
-                }
-            }
-            if (Configuration.Instance.ZoneEnterRemoveGroups.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneEnterRemoveGroups.Count); i++)
-                {
-                    Configuration.Instance.ZoneEnterRemoveGroups.Add(new List<string>());
-                }
-            }
-            if (Configuration.Instance.ZoneLeaveAddGroups.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneLeaveAddGroups.Count); i++)
-                {
-                    Configuration.Instance.ZoneLeaveAddGroups.Add(new List<string>());
-                }
-            }
-            if (Configuration.Instance.ZoneLeaveRemoveGroups.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneLeaveRemoveGroups.Count); i++)
-                {
-                    Configuration.Instance.ZoneLeaveRemoveGroups.Add(new List<string>());
-                }
-            }
-            // Added in 0.6.2.0
-            if (Configuration.Instance.ZoneEnterMessages.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneEnterMessages.Count); i++)
-                {
-                    Configuration.Instance.ZoneEnterMessages.Add(new List<string>());
-                }
-            }
-            if (Configuration.Instance.ZoneLeaveMessages.Count < Configuration.Instance.ZoneNames.Count)
-            {
-                for (int i = 0; i < (Configuration.Instance.ZoneNames.Count - Configuration.Instance.ZoneLeaveMessages.Count); i++)
-                {
-                    Configuration.Instance.ZoneLeaveMessages.Add(new List<string>());
-                }
-            }
-            // add default message to zone
-            int y = 0;
-            foreach (var eML in Configuration.Instance.ZoneEnterMessages)
-            {
-                if (eML.Count == 0 && Configuration.Instance.ZoneFlags.ElementAt(y).Contains(Zone.enterMessage))
-                {
-                    eML.Add("Now entering the zone: " + Configuration.Instance.ZoneNames.ElementAt(y));
-                }
-                y++;
-            }
-            y = 0;
-            foreach (var lML in Configuration.Instance.ZoneLeaveMessages)
-            {
-                if (lML.Count == 0 && Configuration.Instance.ZoneFlags.ElementAt(y).Contains(Zone.leaveMessage))
-                {
-                    lML.Add("Now leaving the zone: " + Configuration.Instance.ZoneNames.ElementAt(y));
-                }
-                y++;
-            }
-            Configuration.Save();
             // Convert config to new config style IMPORTANT: remove upper part and clearing lists for the next update
-            bool isOld = true;
-            foreach (var version in Versions)
-                if (Configuration.Instance.version == version)
-                    isOld = false;
-            if (isOld)
+            if (compareVersion("0.7.0.0", Configuration.Instance.version))
             {
                 Logger.Log("Converting old Xml layout into the new one");
 
@@ -300,8 +202,6 @@ namespace Game4Freak.AdvancedZones
                     x++;
                 }
             }
-
-            Logger.Log("Updating done");
         }
 
         private void Update()
@@ -482,6 +382,22 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
+        private void onVehicleCarjack(InteractableVehicle vehicle, Player instigatingPlayer, ref bool allow, ref Vector3 force, ref Vector3 torque)
+        {
+            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleCarjack]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission("advancedzones.override.carjack"))
+            {
+                List<Zone> currentZones = getPositionZones(vehicle.transform.position);
+                foreach (var zone in currentZones)
+                {
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleCarjack]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.carjack." + zone.getName()).ToLower()))
+                    {
+                        allow = false;
+                        return;
+                    }
+                }
+            }
+        }
+
         private void onTireDamage(CSteamID instigatorSteamID, InteractableVehicle vehicle, int tireIndex, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
             if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noTireDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.tiredamage"))
@@ -492,12 +408,9 @@ namespace Game4Freak.AdvancedZones
                     if (zone.hasFlag(Zone.flagTypes[Zone.noTireDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.tiredamage." + zone.getName()).ToLower()))
                     {
                         shouldAllow = false;
+                        return;
                     }
                 }
-            }
-            else
-            {
-                shouldAllow = true;
             }
         }
 
@@ -827,6 +740,11 @@ namespace Game4Freak.AdvancedZones
                     shouldAllow = false;
                 }
             }
+        }
+
+        private bool compareVersion(string version1, string version2)
+        {
+            return int.Parse(version1.Replace(".", "")) > int.Parse(version2.Replace(".", ""));
         }
 
         public bool playerInAZone(UnturnedPlayer player)

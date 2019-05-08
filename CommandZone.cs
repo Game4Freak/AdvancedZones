@@ -1657,8 +1657,8 @@ namespace Game4Freak.AdvancedZones
                             }
                             foreach (var position in positions)
                             {
-                                StructureManager.dropStructure(new Structure(1212), new Vector3(position.x, position.y + (float)2.5, position.z), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
-                                StructureManager.dropStructure(new Structure(1212), new Vector3(position.x, position.y + (float)7.5, position.z), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
+                                StructureManager.dropStructure(new Structure(1212), getGroundedPosition(position, 2.5f), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
+                                StructureManager.dropStructure(new Structure(1212), getGroundedPosition(position, 7.5f), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
                             }
                             UnturnedChat.Say(caller, "Enabled visualizing border of zone: " + currentZone.getName(), UnityEngine.Color.cyan);
                         }
@@ -1689,11 +1689,11 @@ namespace Game4Freak.AdvancedZones
                                 Regions.tryGetCoordinate(new Vector3(position.x, position.y, position.z), out x, out y);
                                 List<RegionCoordinate> coordinates = new List<RegionCoordinate>() { new RegionCoordinate(x, y) };
                                 List<Transform> transforms = new List<Transform>();
-                                StructureManager.getStructuresInRadius(new Vector3(position.x, position.y + (float)2.5, position.z), 2, coordinates, transforms);
-                                StructureManager.getStructuresInRadius(new Vector3(position.x, position.y + (float)7.5, position.z), 2, coordinates, transforms);
+                                StructureManager.getStructuresInRadius(getGroundedPosition(position, 2.5f), 2, coordinates, transforms);
+                                StructureManager.getStructuresInRadius(getGroundedPosition(position, 7.5f), 2, coordinates, transforms);
                                 foreach (var transform in transforms)
                                 {
-                                    if (transform.position == new Vector3(position.x, position.y + (float)2.5, position.z) || transform.position == new Vector3(position.x, position.y + (float)7.5, position.z))
+                                    if (transform.position == getGroundedPosition(position, 2.5f) || transform.position == getGroundedPosition(position, 7.5f))
                                         StructureManager.damage(transform, transform.position, 800, 10, false);
                                 }
                             }
@@ -1743,6 +1743,11 @@ namespace Game4Freak.AdvancedZones
                 UnturnedChat.Say(caller, "Invalid! Try /zone help or /zone " + Syntax, UnityEngine.Color.red);
                 return;
             }
+        }
+
+        private Vector3 getGroundedPosition(Vector3 point, float offset)
+        {
+            return new Vector3(point.x, LevelGround.getHeight(point) + offset, point.z);
         }
     }
 }
