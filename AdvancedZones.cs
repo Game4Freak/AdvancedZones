@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.3.0";
+        public const string VERSION = "0.7.3.1";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -448,7 +448,10 @@ namespace Game4Freak.AdvancedZones
                             foreach (var blocklist in currentEquipBlocklists)
                             {
                                 if (blocklist.name == "ALL")
+                                {
+                                    equipment.dequip();
                                     return;
+                                }
                             }
 
                             foreach (var blocklist in currentEquipBlocklists)
@@ -552,7 +555,10 @@ namespace Game4Freak.AdvancedZones
                             foreach (var blocklist in currentBuildBlocklists)
                             {
                                 if (blocklist.name == "ALL")
+                                {
+                                    shouldAllow = false;
                                     return;
+                                }
                             }
 
                             foreach (var blocklist in currentBuildBlocklists)
@@ -609,7 +615,10 @@ namespace Game4Freak.AdvancedZones
                             foreach (var blocklist in currentBuildBlocklists)
                             {
                                 if (blocklist.name == "ALL")
+                                {
+                                    shouldAllow = false;
                                     return;
+                                }
                             }
 
                             foreach (var blocklist in currentBuildBlocklists)
