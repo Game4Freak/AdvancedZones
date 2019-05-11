@@ -22,17 +22,17 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.3.1";
+        public const string VERSION = "0.7.4.0";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
         private bool notifyUpdate = false;
         // Events
         public delegate void onZoneLeaveHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos);
-        public static onZoneLeaveHandler onZoneLeave;
+        public static event onZoneLeaveHandler onZoneLeave;
 
         public delegate void onZoneEnterHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos);
-        public static onZoneEnterHandler onZoneEnter;
+        public static event onZoneEnterHandler onZoneEnter;
        
         /**
          * TODO:
@@ -80,15 +80,16 @@ namespace Game4Freak.AdvancedZones
                 Configuration.Save();
             }
 
+            // Init
+            onZoneLeave += onZoneLeft;
+            onZoneEnter += onZoneEntered;
+
             lastPosition = new Dictionary<string, Vector3>();
             foreach (var splayer in Provider.clients)
             {
                 onPlayerConnection(UnturnedPlayer.FromSteamPlayer(splayer));
             }
-
-            // Init
-            onZoneLeave += onZoneLeft;
-            onZoneEnter += onZoneEntered;
+            
             // Enter / Leave
             U.Events.OnPlayerConnected += onPlayerConnection;
             U.Events.OnPlayerDisconnected += onPlayerDisconnection;
@@ -221,7 +222,10 @@ namespace Game4Freak.AdvancedZones
                 }
                 else
                 {
-                    lastPosition.TryGetValue(player.Id, out lastPos);
+                    if (!lastPosition.TryGetValue(player.Id, out lastPos))
+                    {
+                        lastPos = player.Position;
+                    }
                     if (!lastPos.Equals(player.Position))
                     {
                         List<string> lastZoneNames = new List<string>();
@@ -479,7 +483,7 @@ namespace Game4Freak.AdvancedZones
             {
                 return;
             }
-            if (cause == EDeathCause.LANDMINE || cause == EDeathCause.SHRED || cause == EDeathCause.SENTRY || cause == EDeathCause.VEHICLE || cause == EDeathCause.ROADKILL || cause == EDeathCause.ACID)
+            if (cause == EDeathCause.LANDMINE || cause == EDeathCause.SHRED || cause == EDeathCause.SENTRY || cause == EDeathCause.VEHICLE || cause == EDeathCause.ROADKILL || cause == EDeathCause.ACID || cause == EDeathCause.BOULDER)
             {
                 if (playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]))
                 {
@@ -490,7 +494,18 @@ namespace Game4Freak.AdvancedZones
                     }
                     canDamage = false;
                     return;
-                } else
+                }
+                else if (playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPvP]) && (cause != EDeathCause.ACID && cause != EDeathCause.BOULDER))
+                {
+                    if (cause == EDeathCause.VEHICLE)
+                    {
+                        if (UnturnedPlayer.FromPlayer(player).IsInVehicle)
+                            return;
+                    }
+                    canDamage = false;
+                    return;
+                }
+                else
                 {
                     return;
                 }
@@ -508,14 +523,22 @@ namespace Game4Freak.AdvancedZones
             {
                 return;
             }
-            if ((playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]) || playerInZoneType(UnturnedPlayer.FromCSteamID(killer), Zone.flagTypes[Zone.noPlayerDamage])) && !UnturnedPlayer.FromCSteamID(killer).HasPermission("advancedzones.override.playerdamage"))
+            if (((playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]) || playerInZoneType(UnturnedPlayer.FromCSteamID(killer), Zone.flagTypes[Zone.noPlayerDamage]))
+                 && !UnturnedPlayer.FromCSteamID(killer).HasPermission("advancedzones.override.playerdamage")) || ((playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPvP]) ||
+                 playerInZoneType(UnturnedPlayer.FromCSteamID(killer), Zone.flagTypes[Zone.noPvP])) && !UnturnedPlayer.FromCSteamID(killer).HasPermission("advancedzones.override.pvp")))
             {
                 List<Zone> currentZones = getPositionZones(player.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noPlayerDamage]) && !UnturnedPlayer.FromCSteamID(killer).HasPermission(("advancedzones.override.playerdamage." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noPlayerDamage]) && !UnturnedPlayer.FromCSteamID(killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
                     {
                         canDamage = false;
+                        return;
+                    }
+                    else if (zone.hasFlag(Zone.flagTypes[Zone.noPvP]) && !UnturnedPlayer.FromCSteamID(killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
+                    {
+                        canDamage = false;
+                        return;
                     }
                 }
             }

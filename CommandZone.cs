@@ -953,7 +953,7 @@ namespace Game4Freak.AdvancedZones
                         }
                         foreach (var f in z.getFlags())
                         {
-                            message = message + f + ",";
+                            message = message + f + ", ";
                         }
                         message = message + "}, ";
                     }
