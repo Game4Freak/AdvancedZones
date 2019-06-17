@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.4.0";
+        public const string VERSION = "0.7.4.1";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -299,7 +299,7 @@ namespace Game4Freak.AdvancedZones
                     {
                         player.CurrentVehicle.forceRemoveAllPlayers();
                     }
-                    player.Teleport(new Vector3(lastPos.x, lastPos.y - (float)0.6, lastPos.z), player.Rotation);
+                    player.Teleport(new Vector3(lastPos.x, lastPos.y - 0.5f, lastPos.z), player.Rotation);
                     return;
                 }
             }
@@ -336,7 +336,7 @@ namespace Game4Freak.AdvancedZones
                     {
                         player.CurrentVehicle.forceRemoveAllPlayers();
                     }
-                    player.Teleport(new Vector3(lastPos.x, lastPos.y - (float)0.6, lastPos.z), player.Rotation);
+                    player.Teleport(new Vector3(lastPos.x, lastPos.y - 0.5f, lastPos.z), player.Rotation);
                     return;
                 }
             }
@@ -510,7 +510,7 @@ namespace Game4Freak.AdvancedZones
                     return;
                 }
             } 
-            if (UnturnedPlayer.FromCSteamID(killer).Player == null && playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]))
+            if ((UnturnedPlayer.FromCSteamID(killer) == null || UnturnedPlayer.FromCSteamID(killer).Player == null) && playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]))
             {
                 if (cause == EDeathCause.ZOMBIE)
                 {
@@ -519,7 +519,7 @@ namespace Game4Freak.AdvancedZones
                 canDamage = false;
                 return;
             }
-            else if (UnturnedPlayer.FromCSteamID(killer).Player == null)
+            else if (UnturnedPlayer.FromCSteamID(killer) == null || UnturnedPlayer.FromCSteamID(killer).Player == null)
             {
                 return;
             }

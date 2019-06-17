@@ -1603,8 +1603,8 @@ namespace Game4Freak.AdvancedZones
                         {
                             foreach (var node in currentZone.getNodes())
                             {
-                                StructureManager.dropStructure(new Structure(1212), new Vector3(node.x, node.y + (float)2.5, node.z), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
-                                StructureManager.dropStructure(new Structure(1212), new Vector3(node.x, node.y + (float)7.5, node.z), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
+                                StructureManager.dropStructure(new Structure(1212), new Vector3(node.x, node.y + (float)2.5, node.z), 0, (float)(Math.Atan(node.x / node.z) * (180 / Math.PI)), 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
+                                StructureManager.dropStructure(new Structure(1212), new Vector3(node.x, node.y + (float)7.5, node.z), 0, (float)(Math.Atan(node.x / node.z) * (180 / Math.PI)), 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
                             }
                             UnturnedChat.Say(caller, "Enabled visualizing nodes of zone: " + currentZone.getName(), UnityEngine.Color.cyan);
                         }
@@ -1655,10 +1655,13 @@ namespace Game4Freak.AdvancedZones
                                     x++;
                                 }
                             }
-                            foreach (var position in positions)
+                            for (int i = 0; i < positions.Count; i++)
                             {
-                                StructureManager.dropStructure(new Structure(1212), getGroundedPosition(position, 2.5f), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
-                                StructureManager.dropStructure(new Structure(1212), getGroundedPosition(position, 7.5f), 0, 0, 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
+                                int y = i + 1;
+                                if (i == positions.Count - 1)
+                                    y = 0;
+                                StructureManager.dropStructure(new Structure(1212), getGroundedPosition(positions[i], 2.5f), 0, (float)(Math.Atan((positions[i].x - positions[y].x) / (positions[i].z - positions[y].z)) * (180 / Math.PI)), 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
+                                StructureManager.dropStructure(new Structure(1212), getGroundedPosition(positions[i], 7.5f), 0, (float)(Math.Atan((positions[i].x - positions[y].x) / (positions[i].z - positions[y].z)) * (180 / Math.PI)), 0, ulong.Parse(player.CSteamID.ToString()), ulong.Parse(player.SteamGroupID.ToString()));
                             }
                             UnturnedChat.Say(caller, "Enabled visualizing border of zone: " + currentZone.getName(), UnityEngine.Color.cyan);
                         }
