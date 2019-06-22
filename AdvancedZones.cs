@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.8.0.0";
+        public const string VERSION = "0.8.0.1";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -336,7 +336,7 @@ namespace Game4Freak.AdvancedZones
             {
                 foreach (var effect in zone.getLeaveAddEffects())
                 {
-                    EffectManager.sendEffect(effect, player.CSteamID, player.Position);
+                    player.TriggerEffect(effect);
                 }
             }
             if (zone.hasFlag(Zone.flagTypes[Zone.leaveRemoveEffect]))
@@ -387,7 +387,7 @@ namespace Game4Freak.AdvancedZones
             {
                 foreach (var effect in zone.getEnterAddEffects())
                 {
-                    EffectManager.sendEffect(effect, player.CSteamID, player.Position);
+                    player.TriggerEffect(effect);
                 }
             }
             if (zone.hasFlag(Zone.flagTypes[Zone.enterRemoveEffect]))
