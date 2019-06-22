@@ -30,12 +30,22 @@ namespace Game4Freak.AdvancedZones
         public List<string> enterMessages;
         [XmlArrayItem(ElementName = "leaveMessage")]
         public List<string> leaveMessages;
+        [XmlArrayItem(ElementName = "enterAddEffect")]
+        public List<ushort> enterAddEffects;
+        [XmlArrayItem(ElementName = "leaveAddEffect")]
+        public List<ushort> leaveAddEffects;
+        [XmlArrayItem(ElementName = "enterRemoveEffect")]
+        public List<ushort> enterRemoveEffects;
+        [XmlArrayItem(ElementName = "leaveRemoveEffect")]
+        public List<ushort> leaveRemoveEffects;
         [XmlArrayItem(ElementName = "parameter")]
         public List<Parameter> parameters;
 
-        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator", "noVehicleCarjack", "noPvP" };
+        public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator", "noVehicleCarjack",
+            "noPvP", "noVehicleSiphoning", "enterAddEffect", "leaveAddEffect", "enterRemoveEffect", "leaveRemoveEffect", "noAnimalDamage", "noZombieDamage" };
         public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of specific buildables", "No equiping of specific items", "No damage on tires", "No entering the zone", "No leaving the zone", "Message on entering the zone",
-            "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No zombies", "Infinitely running generators", "No carjacking of vehicles", "No damage on players from other players" };
+            "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No zombies", "Infinitely running generators", "No carjacking of vehicles", "No damage on players from other players", "No siphoning of vehicles",
+            "Effect on entering the zone", "Effect on leaving the zone", "Effect cleared on entering the zone", "Effect cleared on leaving the zone", "No damge to animals", "No damage to zombies" };
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
@@ -55,6 +65,13 @@ namespace Game4Freak.AdvancedZones
         public static int infiniteGenerator = 16;
         public static int noVehicleCarjack = 17;
         public static int noPvP = 18;
+        public static int noVehicleSiphoning = 19;
+        public static int enterAddEffect = 20;
+        public static int leaveAddEffect = 21;
+        public static int enterRemoveEffect = 22;
+        public static int leaveRemoveEffect = 23;
+        public static int noAnimalDamage = 24;
+        public static int noZombieDamage = 25;
 
         public Zone()
         {
@@ -296,6 +313,70 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
+        public void addEnterAddEffect(ushort effect)
+        {
+            if (!enterAddEffects.Contains(effect))
+            {
+                enterAddEffects.Add(effect);
+            }
+        }
+
+        public void removeEnterAddEffect(ushort effect)
+        {
+            if (enterAddEffects.Contains(effect))
+            {
+                enterAddEffects.Remove(effect);
+            }
+        }
+
+        public void addLeaveAddEffect(ushort effect)
+        {
+            if (!leaveAddEffects.Contains(effect))
+            {
+                leaveAddEffects.Add(effect);
+            }
+        }
+
+        public void removeLeaveAddEffect(ushort effect)
+        {
+            if (leaveAddEffects.Contains(effect))
+            {
+                leaveAddEffects.Remove(effect);
+            }
+        }
+
+        public void addEnterRemoveEffect(ushort effect)
+        {
+            if (!enterRemoveEffects.Contains(effect))
+            {
+                enterRemoveEffects.Add(effect);
+            }
+        }
+
+        public void removeEnterRemoveEffect(ushort effect)
+        {
+            if (enterRemoveEffects.Contains(effect))
+            {
+                enterRemoveEffects.Remove(effect);
+            }
+        }
+
+        public void addLeaveRemoveEffect(ushort effect)
+        {
+            if (!leaveRemoveEffects.Contains(effect))
+            {
+                leaveRemoveEffects.Add(effect);
+            }
+        }
+
+        public void removeLeaveRemoveEffect(ushort effect)
+        {
+            if (leaveRemoveEffects.Contains(effect))
+            {
+                leaveRemoveEffects.Remove(effect);
+            }
+        }
+
         public void addParameter(string parameterName, List<string> parameterValues)
         {
             foreach (var parameter in parameters)
@@ -373,9 +454,29 @@ namespace Game4Freak.AdvancedZones
             return enterMessages;
         }
 
-        public List<string> getleaveMessages()
+        public List<string> getLeaveMessages()
         {
             return leaveMessages;
+        }
+
+        public List<ushort> getEnterAddEffects()
+        {
+            return enterAddEffects;
+        }
+
+        public List<ushort> getLeaveAddEffects()
+        {
+            return leaveAddEffects;
+        }
+
+        public List<ushort> getEnterRemoveEffects()
+        {
+            return enterRemoveEffects;
+        }
+
+        public List<ushort> getLeaveRemoveEffects()
+        {
+            return leaveRemoveEffects;
         }
 
         public List<Parameter> GetParameters()

@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.7.4.1";
+        public const string VERSION = "0.8.0.0";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -101,6 +101,10 @@ namespace Game4Freak.AdvancedZones
             DamageTool.playerDamaged += onPlayerDamage;
             VehicleManager.onDamageTireRequested += onTireDamage;
             VehicleManager.onVehicleCarjacked += onVehicleCarjack;
+            DamageTool.animalDamaged += onAnimalDamage;
+            DamageTool.zombieDamaged += onZombieDamage;
+            // Block Steal
+            VehicleManager.onSiphonVehicleRequested += onVehicleSiphoning;
             // Block Buildable
             BarricadeManager.onDeployBarricadeRequested += onBarricadeDeploy;
             StructureManager.onDeployStructureRequested += onStructureDepoly;
@@ -124,6 +128,10 @@ namespace Game4Freak.AdvancedZones
             DamageTool.playerDamaged -= onPlayerDamage;
             VehicleManager.onDamageTireRequested -= onTireDamage;
             VehicleManager.onVehicleCarjacked -= onVehicleCarjack;
+            DamageTool.animalDamaged -= onAnimalDamage;
+            DamageTool.zombieDamaged -= onZombieDamage;
+            // Block Steal
+            VehicleManager.onSiphonVehicleRequested -= onVehicleSiphoning;
             // Block Buildable
             BarricadeManager.onDeployBarricadeRequested -= onBarricadeDeploy;
             StructureManager.onDeployStructureRequested -= onStructureDepoly;
@@ -305,7 +313,7 @@ namespace Game4Freak.AdvancedZones
             }
             if (zone.hasFlag(Zone.flagTypes[Zone.leaveMessage]))
             {
-                foreach (var leaveMessage in zone.getleaveMessages())
+                foreach (var leaveMessage in zone.getLeaveMessages())
                 {
                     UnturnedChat.Say(player, leaveMessage, UnityEngine.Color.green);
                 }               
@@ -322,6 +330,20 @@ namespace Game4Freak.AdvancedZones
                 foreach (var group in zone.getLeaveAddGroups())
                 {
                     R.Permissions.RemovePlayerFromGroup(group, player);
+                }
+            }
+            if (zone.hasFlag(Zone.flagTypes[Zone.leaveAddEffect]))
+            {
+                foreach (var effect in zone.getLeaveAddEffects())
+                {
+                    EffectManager.sendEffect(effect, player.CSteamID, player.Position);
+                }
+            }
+            if (zone.hasFlag(Zone.flagTypes[Zone.leaveRemoveEffect]))
+            {
+                foreach (var effect in zone.getLeaveRemoveEffects())
+                {
+                    EffectManager.askEffectClearByID(effect, player.CSteamID);
                 }
             }
         }
@@ -359,6 +381,20 @@ namespace Game4Freak.AdvancedZones
                 foreach (var group in zone.getEnterAddGroups())
                 {
                     R.Permissions.AddPlayerToGroup(group, player);
+                }
+            }
+            if (zone.hasFlag(Zone.flagTypes[Zone.enterAddEffect]))
+            {
+                foreach (var effect in zone.getEnterAddEffects())
+                {
+                    EffectManager.sendEffect(effect, player.CSteamID, player.Position);
+                }
+            }
+            if (zone.hasFlag(Zone.flagTypes[Zone.enterRemoveEffect]))
+            {
+                foreach (var effect in zone.getEnterRemoveEffects())
+                {
+                    EffectManager.askEffectClearByID(effect, player.CSteamID);
                 }
             }
         }
@@ -399,6 +435,38 @@ namespace Game4Freak.AdvancedZones
                         return;
                     }
                 }
+            }
+        }
+
+        private void onVehicleSiphoning(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow, ref ushort desiredAmount)
+        {
+            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleSiphoning]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission("advancedzones.override.siphoning"))
+            {
+                List<Zone> currentZones = getPositionZones(vehicle.transform.position);
+                foreach (var zone in currentZones)
+                {
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleSiphoning]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.siphoning." + zone.getName()).ToLower()))
+                    {
+                        shouldAllow = false;
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void onZombieDamage(Zombie zombie, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage)
+        {
+            if (transformInZoneType(zombie.transform, Zone.flagTypes[Zone.noZombieDamage]))
+            {
+                canDamage = false;
+            }
+        }
+
+        private void onAnimalDamage(Animal animal, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage)
+        {
+            if (transformInZoneType(animal.transform, Zone.flagTypes[Zone.noAnimalDamage]))
+            {
+                canDamage = false;
             }
         }
 

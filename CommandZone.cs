@@ -60,7 +60,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone add /zone add <zone|node|flag|block|group|parameter|heightnode> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|add|remove|heightoffset> <group>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone add /zone add <zone|node|flag|block|group|parameter|heightnode|effect> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|add|remove|heightoffset> <group|effect>", UnityEngine.Color.red);
                     return;
                 }
                 else if (command[1].ToLower() == "zone")
@@ -126,7 +126,7 @@ namespace Game4Freak.AdvancedZones
                                     currentZone.addEnterMessage("Now entering the zone: " + currentZone.getName());
                                     UnturnedChat.Say(caller, "Added default message on entering", UnityEngine.Color.cyan);
                                 }
-                                else if (i == Zone.leaveMessage && currentZone.getleaveMessages().Count == 0)
+                                else if (i == Zone.leaveMessage && currentZone.getLeaveMessages().Count == 0)
                                 {
                                     currentZone.addLeaveMessage("Now leaving the zone: " + currentZone.getName());
                                     UnturnedChat.Say(caller, "Added default message on leaving", UnityEngine.Color.cyan);
@@ -433,9 +433,102 @@ namespace Game4Freak.AdvancedZones
                         return;
                     }
                 }
+                else if (command[1].ToLower() == "effect")
+                {
+                    if (command.Length < 6)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone add effect <zonename> <enter|leave> <add|remove> <effect>", UnityEngine.Color.red);
+                        return;
+                    }
+                    ushort id = 0;
+                    if (!ushort.TryParse(command[5], out id))
+                    {
+                        UnturnedChat.Say(caller, "Invalid! " + command[5] + "is not a number", UnityEngine.Color.red);
+                    }
+                    Zone currentZone = AdvancedZones.Instance.getZoneByName(command[2]);
+                    if (currentZone != null)
+                    {
+                        if (command[3].ToLower() == "enter")
+                        {
+                            if (command[4].ToLower() == "add")
+                            {
+                                foreach (var enterAddEffect in currentZone.getEnterAddEffects())
+                                {
+                                    if (enterAddEffect == id)
+                                    {
+                                        UnturnedChat.Say(caller, "Zone already got the effect: " + enterAddEffect, UnityEngine.Color.red);
+                                        return;
+                                    }
+                                }
+                                currentZone.addEnterAddEffect(id);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Added effect: " + command[5] + " to zone: " + currentZone.getName() + " to add on entering", UnityEngine.Color.cyan);
+                                return;
+                            }
+                            else if (command[4].ToLower() == "remove")
+                            {
+                                foreach (var enterRemoveEffect in currentZone.getEnterRemoveEffects())
+                                {
+                                    if (enterRemoveEffect == id)
+                                    {
+                                        UnturnedChat.Say(caller, "Zone already got the effect: " + enterRemoveEffect, UnityEngine.Color.red);
+                                        return;
+                                    }
+                                }
+                                currentZone.addEnterRemoveEffect(id);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Added effect: " + command[5] + " to zone: " + currentZone.getName() + " to remove on entering", UnityEngine.Color.cyan);
+                                return;
+                            }
+                        }
+                        else if (command[3].ToLower() == "leave")
+                        {
+                            if (command[4].ToLower() == "add")
+                            {
+                                foreach (var leaveAddEffect in currentZone.getLeaveAddEffects())
+                                {
+                                    if (leaveAddEffect == id)
+                                    {
+                                        UnturnedChat.Say(caller, "Zone already got the effect: " + leaveAddEffect, UnityEngine.Color.red);
+                                        return;
+                                    }
+                                }
+                                currentZone.addLeaveAddEffect(id);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Added effect: " + command[5] + " to zone: " + currentZone.getName() + " to add on leaveing", UnityEngine.Color.cyan);
+                                return;
+                            }
+                            else if (command[4].ToLower() == "remove")
+                            {
+                                foreach (var leaveRemoveEffect in currentZone.getLeaveRemoveEffects())
+                                {
+                                    if (leaveRemoveEffect == id)
+                                    {
+                                        UnturnedChat.Say(caller, "Zone already got the effect: " + leaveRemoveEffect, UnityEngine.Color.red);
+                                        return;
+                                    }
+                                }
+                                currentZone.addLeaveRemoveEffect(id);
+                                AdvancedZones.Instance.Configuration.Save();
+                                UnturnedChat.Say(caller, "Added effect: " + command[5] + " to zone: " + currentZone.getName() + " to remove on leaveing", UnityEngine.Color.cyan);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone add effect <zonename> <enter|leave> <add|remove> <effect>", UnityEngine.Color.red);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                }
                 else
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone add /zone add <zone|node|flag|block|group|parameter|heightnode> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|add|remove|heightoffset> <group>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone add /zone add <zone|node|flag|block|group|parameter|heightnode|effect> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|add|remove|heightoffset> <group|effect>", UnityEngine.Color.red);
                     return;
                 }
             }
@@ -444,7 +537,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag|block|group|parameter|heightnode> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|add|remove> <group>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag|block|group|parameter|heightnode|effect> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|add|remove> <group|effect>", UnityEngine.Color.red);
                     return;
                 }
                 else if (command[1].ToLower() == "zone")
@@ -753,10 +846,10 @@ namespace Game4Freak.AdvancedZones
                         }
                         else if (command[3].ToLower() == "leave")
                         {
-                            if (currentZone.getleaveMessages().Count > messageIndex)
+                            if (currentZone.getLeaveMessages().Count > messageIndex)
                             {
-                                UnturnedChat.Say(caller, "Removed message: " + currentZone.getleaveMessages()[messageIndex] + " from zone: " + currentZone.getName() + " on leaving", UnityEngine.Color.cyan);
-                                currentZone.getleaveMessages().RemoveAt(messageIndex);
+                                UnturnedChat.Say(caller, "Removed message: " + currentZone.getLeaveMessages()[messageIndex] + " from zone: " + currentZone.getName() + " on leaving", UnityEngine.Color.cyan);
+                                currentZone.getLeaveMessages().RemoveAt(messageIndex);
                                 AdvancedZones.Instance.Configuration.Save();
                                 return;
                             }
@@ -832,9 +925,102 @@ namespace Game4Freak.AdvancedZones
                         return;
                     }
                 }
+                else if (command[1].ToLower() == "effect")
+                {
+                    if (command.Length < 6)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone remove effect <zonename> <enter|leave> <add|remove> <effect>", UnityEngine.Color.red);
+                        return;
+                    }
+                    ushort id = 0;
+                    if (!ushort.TryParse(command[5], out id))
+                    {
+                        UnturnedChat.Say(caller, "Invalid! " + command[5] + "is not a number", UnityEngine.Color.red);
+                    }
+                    Zone currentZone = AdvancedZones.Instance.getZoneByName(command[2]);
+                    if (currentZone != null)
+                    {
+                        if (command[3].ToLower() == "enter")
+                        {
+                            if (command[4].ToLower() == "add")
+                            {
+                                foreach (var enterAddEffect in currentZone.getEnterAddEffects())
+                                {
+                                    if (enterAddEffect == id)
+                                    {
+                                        currentZone.removeEnterAddEffect(enterAddEffect);
+                                        AdvancedZones.Instance.Configuration.Save();
+                                        UnturnedChat.Say(caller, "Removed effect: " + enterAddEffect + " from zone: " + currentZone.getName() + " from add on entering", UnityEngine.Color.cyan);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The zone: " + currentZone.getName() + " does not have the effect: " + command[5], UnityEngine.Color.red);
+                                return;
+                            }
+                            else if (command[4].ToLower() == "remove")
+                            {
+                                foreach (var enterRemoveEffect in currentZone.getEnterRemoveEffects())
+                                {
+                                    if (enterRemoveEffect == id)
+                                    {
+                                        currentZone.removeEnterRemoveEffect(enterRemoveEffect);
+                                        AdvancedZones.Instance.Configuration.Save();
+                                        UnturnedChat.Say(caller, "Removed effect: " + enterRemoveEffect + " from zone: " + currentZone.getName() + " from remove on entering", UnityEngine.Color.cyan);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The zone: " + currentZone.getName() + " does not have the effect: " + command[5], UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                        else if (command[3].ToLower() == "leave")
+                        {
+                            if (command[4].ToLower() == "add")
+                            {
+                                foreach (var leaveAddEffect in currentZone.getLeaveAddEffects())
+                                {
+                                    if (leaveAddEffect == id)
+                                    {
+                                        currentZone.removeLeaveAddEffect(leaveAddEffect);
+                                        AdvancedZones.Instance.Configuration.Save();
+                                        UnturnedChat.Say(caller, "Removed effect: " + leaveAddEffect + " from zone: " + currentZone.getName() + " from add on leaveing", UnityEngine.Color.cyan);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The zone: " + currentZone.getName() + " does not have the effect: " + command[5], UnityEngine.Color.red);
+                                return;
+                            }
+                            else if (command[4].ToLower() == "remove")
+                            {
+                                foreach (var leaveRemoveEffect in currentZone.getLeaveRemoveEffects())
+                                {
+                                    if (leaveRemoveEffect == id)
+                                    {
+                                        currentZone.removeLeaveRemoveEffect(leaveRemoveEffect);
+                                        AdvancedZones.Instance.Configuration.Save();
+                                        UnturnedChat.Say(caller, "Removed effect: " + leaveRemoveEffect + " from zone: " + currentZone.getName() + " from remove on leaveing", UnityEngine.Color.cyan);
+                                        return;
+                                    }
+                                }
+                                UnturnedChat.Say(caller, "The zone: " + currentZone.getName() + " does not have the effect: " + command[5], UnityEngine.Color.red);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            UnturnedChat.Say(caller, "Invalid! Try /zone remove effect <zonename> <enter|leave> <add|remove> <effect>", UnityEngine.Color.red);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                        return;
+                    }
+                }
                 else
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag|block|group|parameter|heightnode> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|add|remove> <group>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone remove <zone|node|flag|block|group|parameter|heightnode|effect> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|add|remove> <group|effect>", UnityEngine.Color.red);
                     return;
                 }
             }
@@ -894,7 +1080,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length < 2)
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags|blocklists|groups|parameters|heightnodes> <zonename>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags|blocklists|groups|parameters|heightnodes|effects> <zonename>", UnityEngine.Color.red);
                     return;
                 }
                 if (command[1].ToLower() == "zone")
@@ -1097,7 +1283,7 @@ namespace Game4Freak.AdvancedZones
                         }
                         UnturnedChat.Say(caller, "Messages of zone: " + currentZone.getName() + " on leaving:", UnityEngine.Color.cyan);
                         x = 0;
-                        foreach (var leaveMessage in currentZone.getleaveMessages())
+                        foreach (var leaveMessage in currentZone.getLeaveMessages())
                         {
                             UnturnedChat.Say(caller, "(" + x + ") " + leaveMessage, UnityEngine.Color.cyan);
                         }
@@ -1159,9 +1345,47 @@ namespace Game4Freak.AdvancedZones
                         return;
                     }
                 }
+                else if (command[1].ToLower() == "effects")
+                {
+                    if (command.Length < 3)
+                    {
+                        UnturnedChat.Say(caller, "Invalid! Try /zone list effects <zonename>", UnityEngine.Color.red);
+                        return;
+                    }
+                    Zone currentZone = AdvancedZones.Instance.getZoneByName(command[2]);
+                    if (currentZone != null)
+                    {
+                        string message = "Effects of zone: " + currentZone.getName() + ": Enter{Add{";
+                        foreach (var enterAddEffect in currentZone.getEnterAddEffects())
+                        {
+                            message = message + enterAddEffect + ", ";
+                        }
+                        message = message + "}, Remove{";
+                        foreach (var enterRemoveEffect in currentZone.getEnterRemoveEffects())
+                        {
+                            message = message + enterRemoveEffect + ", ";
+                        }
+                        message = message + "}}, Leave{Add{";
+                        foreach (var leaveAddEffect in currentZone.getLeaveAddEffects())
+                        {
+                            message = message + leaveAddEffect + ", ";
+                        }
+                        message = message + "}, Remove{";
+                        foreach (var leaveRemoveEffect in currentZone.getLeaveRemoveEffects())
+                        {
+                            message = message + leaveRemoveEffect + ", ";
+                        }
+                        UnturnedChat.Say(caller, message + "}}", UnityEngine.Color.cyan);
+                        return;
+                    }
+                    else
+                    {
+                        UnturnedChat.Say(caller, "The zone: " + command[2] + " does not exist", UnityEngine.Color.red);
+                    }
+                }
                 else
                 {
-                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags|blocklists|groups|parameters|heightnodes> <zonename>", UnityEngine.Color.red);
+                    UnturnedChat.Say(caller, "Invalid! Try /zone list <zone|zones|nodes|flags|blocklists|groups|parameters|heightnodes|effects> <zonename>", UnityEngine.Color.red);
                     return;
                 }
             }
@@ -1730,10 +1954,10 @@ namespace Game4Freak.AdvancedZones
                 UnturnedChat.Say(caller, "Check out the AdvancedZones wiki for more information with /zone wiki", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(1) /zone help", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(2) /zone wiki", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(3) /zone add <zone|node|flag|block|group|message|parameter|heightnode> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|message|add|remove|heightoffset> <group>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(4) /zone remove <zone|node|flag|block|group|message|parameter|heightnode> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|messageNum|add|remove> <group>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(3) /zone add <zone|node|flag|block|group|message|parameter|heightnode|effect> <zonename> <flag|equip|build|enter|leave|values|isupper> <blockList|message|add|remove|heightoffset> <group|effect>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(4) /zone remove <zone|node|flag|block|group|message|parameter|heightnode|effect> <zonename> <node|flag|equip|build|enter|leave|values|isupper> <blockList|messageNum|add|remove> <group|effect>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(5) /zone replace <zone|node> <zonename> <newzonename|node>", UnityEngine.Color.cyan);
-                UnturnedChat.Say(caller, "(6) /zone list <zone|zones|nodes|flags|blocklists|groups|messages|parameters|heightnodes> <zonename>", UnityEngine.Color.cyan);
+                UnturnedChat.Say(caller, "(6) /zone list <zone|zones|nodes|flags|blocklists|groups|messages|parameters|heightnodes|effects> <zonename>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(7) /zone flags", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(8) /zone blockList <add|remove|list|addItem|removeItem> <equip|build> <blockList> <itemID>", UnityEngine.Color.cyan);
                 UnturnedChat.Say(caller, "(9) /zone <visualize|show> <nodes|border> <zonename> <on|off> <space>", UnityEngine.Color.cyan);
