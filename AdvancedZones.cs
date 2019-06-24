@@ -22,17 +22,17 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.8.0.1";
+        public const string VERSION = "0.8.0.2";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
         private bool notifyUpdate = false;
         // Events
         public delegate void onZoneLeaveHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos);
-        public static event onZoneLeaveHandler onZoneLeave;
+        public event onZoneLeaveHandler onZoneLeave;
 
         public delegate void onZoneEnterHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos);
-        public static event onZoneEnterHandler onZoneEnter;
+        public event onZoneEnterHandler onZoneEnter;
        
         /**
          * TODO:
