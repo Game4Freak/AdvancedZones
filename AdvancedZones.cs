@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.8.0.3";
+        public const string VERSION = "0.8.0.4";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -1011,7 +1011,7 @@ namespace Game4Freak.AdvancedZones
 
         public void removeCustomFlag(string flagName)
         {
-            foreach (var customFlag in Configuration.Instance.CustomFlags)
+            foreach (var customFlag in Configuration.Instance.CustomFlags.ToList())
             {
                 if (customFlag.name == flagName)
                 {
