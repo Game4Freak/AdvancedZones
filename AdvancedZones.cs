@@ -22,7 +22,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZones : RocketPlugin<AdvancedZonesConfiguration>
     {
         public static AdvancedZones Instance;
-        public const string VERSION = "0.8.0.4";
+        public const string VERSION = "1.0.0";
         public string newVersion = null;
         private int frame = 10;
         private Dictionary<string, Vector3> lastPosition;
@@ -98,11 +98,11 @@ namespace Game4Freak.AdvancedZones
             StructureManager.onDamageStructureRequested += onStructureDamage;
             VehicleManager.onVehicleLockpicked += onVehicleLockpick;
             VehicleManager.onDamageVehicleRequested += onVehicleDamage;
-            DamageTool.playerDamaged += onPlayerDamage;
+            DamageTool.damagePlayerRequested += onPlayerDamage;
             VehicleManager.onDamageTireRequested += onTireDamage;
             VehicleManager.onVehicleCarjacked += onVehicleCarjack;
-            DamageTool.animalDamaged += onAnimalDamage;
-            DamageTool.zombieDamaged += onZombieDamage;
+            DamageTool.damageAnimalRequested += onAnimalDamage;
+            DamageTool.damageZombieRequested += onZombieDamage;
             // Block Steal
             VehicleManager.onSiphonVehicleRequested += onVehicleSiphoning;
             // Block Buildable
@@ -125,11 +125,11 @@ namespace Game4Freak.AdvancedZones
             StructureManager.onDamageStructureRequested -= onStructureDamage;
             VehicleManager.onVehicleLockpicked -= onVehicleLockpick;
             VehicleManager.onDamageVehicleRequested -= onVehicleDamage;
-            DamageTool.playerDamaged -= onPlayerDamage;
+            DamageTool.damagePlayerRequested -= onPlayerDamage;
             VehicleManager.onDamageTireRequested -= onTireDamage;
             VehicleManager.onVehicleCarjacked -= onVehicleCarjack;
-            DamageTool.animalDamaged -= onAnimalDamage;
-            DamageTool.zombieDamaged -= onZombieDamage;
+            DamageTool.damageAnimalRequested -= onAnimalDamage;
+            DamageTool.damageZombieRequested -= onZombieDamage;
             // Block Steal
             VehicleManager.onSiphonVehicleRequested -= onVehicleSiphoning;
             // Block Buildable
@@ -454,17 +454,17 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
-        private void onZombieDamage(Zombie zombie, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage)
+        private void onZombieDamage(ref DamageZombieParameters parameters, ref bool canDamage)
         {
-            if (transformInZoneType(zombie.transform, Zone.flagTypes[Zone.noZombieDamage]))
+            if (transformInZoneType(parameters.zombie.transform, Zone.flagTypes[Zone.noZombieDamage]))
             {
                 canDamage = false;
             }
         }
 
-        private void onAnimalDamage(Animal animal, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage)
+        private void onAnimalDamage(ref DamageAnimalParameters parameters, ref bool canDamage)
         {
-            if (transformInZoneType(animal.transform, Zone.flagTypes[Zone.noAnimalDamage]))
+            if (transformInZoneType(parameters.animal.transform, Zone.flagTypes[Zone.noAnimalDamage]))
             {
                 canDamage = false;
             }
@@ -544,33 +544,33 @@ namespace Game4Freak.AdvancedZones
             }
         }
 
-        private void onPlayerDamage(Player player, ref EDeathCause cause, ref ELimb limb, ref CSteamID killer, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage)
+        private void onPlayerDamage(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            if (cause == EDeathCause.BLEEDING || cause == EDeathCause.BONES || cause == EDeathCause.BREATH || cause == EDeathCause.BURNING || cause == EDeathCause.FOOD || cause == EDeathCause.FREEZING 
-                || cause == EDeathCause.INFECTION || cause == EDeathCause.ARENA || cause == EDeathCause.KILL || cause == EDeathCause.SUICIDE || cause == EDeathCause.WATER)
+            if (parameters.cause == EDeathCause.BLEEDING || parameters.cause == EDeathCause.BONES || parameters.cause == EDeathCause.BREATH || parameters.cause == EDeathCause.BURNING || parameters.cause == EDeathCause.FOOD || parameters.cause == EDeathCause.FREEZING 
+                || parameters.cause == EDeathCause.INFECTION || parameters.cause == EDeathCause.ARENA || parameters.cause == EDeathCause.KILL || parameters.cause == EDeathCause.SUICIDE || parameters.cause == EDeathCause.WATER)
             {
                 return;
             }
-            if (cause == EDeathCause.LANDMINE || cause == EDeathCause.SHRED || cause == EDeathCause.SENTRY || cause == EDeathCause.VEHICLE || cause == EDeathCause.ROADKILL || cause == EDeathCause.ACID || cause == EDeathCause.BOULDER)
+            if (parameters.cause == EDeathCause.LANDMINE || parameters.cause == EDeathCause.SHRED || parameters.cause == EDeathCause.SENTRY || parameters.cause == EDeathCause.VEHICLE || parameters.cause == EDeathCause.ROADKILL || parameters.cause == EDeathCause.ACID || parameters.cause == EDeathCause.BOULDER)
             {
-                if (playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]))
+                if (playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPlayerDamage]))
                 {
-                    if (cause == EDeathCause.VEHICLE)
+                    if (parameters.cause == EDeathCause.VEHICLE)
                     {
-                        if (UnturnedPlayer.FromPlayer(player).IsInVehicle)
+                        if (UnturnedPlayer.FromPlayer(parameters.player).IsInVehicle)
                             return;
                     }
-                    canDamage = false;
+                    shouldAllow = false;
                     return;
                 }
-                else if (playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPvP]) && (cause != EDeathCause.ACID && cause != EDeathCause.BOULDER))
+                else if (playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPvP]) && (parameters.cause != EDeathCause.ACID && parameters.cause != EDeathCause.BOULDER))
                 {
-                    if (cause == EDeathCause.VEHICLE)
+                    if (parameters.cause == EDeathCause.VEHICLE)
                     {
-                        if (UnturnedPlayer.FromPlayer(player).IsInVehicle)
+                        if (UnturnedPlayer.FromPlayer(parameters.player).IsInVehicle)
                             return;
                     }
-                    canDamage = false;
+                    shouldAllow = false;
                     return;
                 }
                 else
@@ -578,34 +578,34 @@ namespace Game4Freak.AdvancedZones
                     return;
                 }
             } 
-            if ((UnturnedPlayer.FromCSteamID(killer) == null || UnturnedPlayer.FromCSteamID(killer).Player == null) && playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]))
+            if ((UnturnedPlayer.FromCSteamID(parameters.killer) == null || UnturnedPlayer.FromCSteamID(parameters.killer).Player == null) && playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPlayerDamage]))
             {
-                if (cause == EDeathCause.ZOMBIE)
+                if (parameters.cause == EDeathCause.ZOMBIE)
                 {
-                    UnturnedPlayer.FromPlayer(player).Infection = 0;
+                    UnturnedPlayer.FromPlayer(parameters.player).Infection = 0;
                 }
-                canDamage = false;
+                shouldAllow = false;
                 return;
             }
-            else if (UnturnedPlayer.FromCSteamID(killer) == null || UnturnedPlayer.FromCSteamID(killer).Player == null)
+            else if (UnturnedPlayer.FromCSteamID(parameters.killer) == null || UnturnedPlayer.FromCSteamID(parameters.killer).Player == null)
             {
                 return;
             }
-            if (((playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPlayerDamage]) || playerInZoneType(UnturnedPlayer.FromCSteamID(killer), Zone.flagTypes[Zone.noPlayerDamage]))
-                 && !UnturnedPlayer.FromCSteamID(killer).HasPermission("advancedzones.override.playerdamage")) || ((playerInZoneType(UnturnedPlayer.FromPlayer(player), Zone.flagTypes[Zone.noPvP]) ||
-                 playerInZoneType(UnturnedPlayer.FromCSteamID(killer), Zone.flagTypes[Zone.noPvP])) && !UnturnedPlayer.FromCSteamID(killer).HasPermission("advancedzones.override.pvp")))
+            if (((playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPlayerDamage]) || playerInZoneType(UnturnedPlayer.FromCSteamID(parameters.killer), Zone.flagTypes[Zone.noPlayerDamage]))
+                 && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission("advancedzones.override.playerdamage")) || ((playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPvP]) ||
+                 playerInZoneType(UnturnedPlayer.FromCSteamID(parameters.killer), Zone.flagTypes[Zone.noPvP])) && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission("advancedzones.override.pvp")))
             {
-                List<Zone> currentZones = getPositionZones(player.transform.position);
+                List<Zone> currentZones = getPositionZones(parameters.player.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noPlayerDamage]) && !UnturnedPlayer.FromCSteamID(killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noPlayerDamage]) && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
                     {
-                        canDamage = false;
+                        shouldAllow = false;
                         return;
                     }
-                    else if (zone.hasFlag(Zone.flagTypes[Zone.noPvP]) && !UnturnedPlayer.FromCSteamID(killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
+                    else if (zone.hasFlag(Zone.flagTypes[Zone.noPvP]) && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
                     {
-                        canDamage = false;
+                        shouldAllow = false;
                         return;
                     }
                 }

@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("AdvancedZones for Rocket-Servers")]
 [assembly: AssemblyCompany("Game4Freak")]
 [assembly: AssemblyProduct("AdvancedZones")]
-[assembly: AssemblyCopyright("Copyright © 2019 Game4Freak")]
+[assembly: AssemblyCopyright("Copyright © 2020 Game4Freak")]
 [assembly: AssemblyTrademark("AdvancedZones")]
 
 // Durch Festlegen von ComVisible auf "false" werden die Typen in dieser Assembly unsichtbar 
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 // Sie können alle Werte angeben oder die standardmäßigen Build- und Revisionsnummern 
 // übernehmen, indem Sie "*" eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.8.0.4")]
-[assembly: AssemblyFileVersion("0.8.0.4")]
+[assembly: AssemblyVersion("1.0.0")]
+[assembly: AssemblyFileVersion("1.0.0")]
