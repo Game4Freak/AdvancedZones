@@ -7,6 +7,7 @@ namespace Game4Freak.AdvancedZones
     public class AdvancedZonesConfiguration : IRocketPluginConfiguration
     {
         public string version;
+        public int UpdateFrame;
         // Old
         public List<string> BlockedBuildablesListNames;
         public List<List<int>> BlockedBuildables;
@@ -43,7 +44,7 @@ namespace Game4Freak.AdvancedZones
         {
             //version = AdvancedZones.VERSION;
             version = AdvancedZones.VERSION;
-
+            UpdateFrame = 10;
             // Zones
             Zones = new List<Zone>();
             // BuildBlocklists
