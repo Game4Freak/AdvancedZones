@@ -1,4 +1,5 @@
 ﻿using Rocket.API;
+using Rocket.API.Collections;
 using Rocket.Core;
 using Rocket.Core.Plugins;
 using Rocket.Unturned;
@@ -33,7 +34,30 @@ namespace Game4Freak.AdvancedZones
 
         public delegate void onZoneEnterHandler(UnturnedPlayer player, Zone zone, Vector3 lastPos);
         public static event onZoneEnterHandler onZoneEnter;
-       
+
+        public override TranslationList DefaultTranslations
+        {
+            get
+            {
+                return new TranslationList()
+                {
+                    {"noBuild","You are not allowed to build {1} in the Zone {0}"},
+                    {"noDamage","You can't damage Structures in the Zone {0}"},
+                    {"noVehicleDamage","You can't damage Vehicles in the Zone {0}"},
+                    {"noPvP","You can't damage other Players in the Zone {0}"},
+                    {"noAnimalDamage","You can't damage Animals in the Zone {0}"},
+                    {"noZombieDamage","You can't damage Zombies in the Zone {0}"},
+                    {"noTireDamage","You can't damage Vehicle Tires in the Zone {0}"},
+                    {"noVehicleCarjack","You are not allowed to Carjack in the Zone {0}"},
+                    {"noVehicleSiphoning","You are not allowed to siphone Vehicles in the Zone {0}"},
+                    {"noLockpick","You are not allowed to lockpick Vehicles in the Zone {0}"},
+                    {"noItemEquip","You are not allowed to use Item {1} in the Zone {0}"},
+                    {"noEnter","You are not allowed to enter the Zone {0}"},
+                    {"noLeave","You are not allowed to leave the Zone {0}"},
+                };
+            }
+        }
+
         /**
          * TODO:
          * Translations
@@ -308,6 +332,8 @@ namespace Game4Freak.AdvancedZones
                         player.CurrentVehicle.forceRemoveAllPlayers();
                     }
                     player.Teleport(new Vector3(lastPos.x, lastPos.y - 0.5f, lastPos.z), player.Rotation);
+                    if (Configuration.Instance.NotifyNoLeave)
+                        UnturnedChat.Say(player, Translate("noLeave", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                     return;
                 }
             }
@@ -359,6 +385,8 @@ namespace Game4Freak.AdvancedZones
                         player.CurrentVehicle.forceRemoveAllPlayers();
                     }
                     player.Teleport(new Vector3(lastPos.x, lastPos.y - 0.5f, lastPos.z), player.Rotation);
+                    if(Configuration.Instance.NotifyNoEnter)
+                        UnturnedChat.Say(player, Translate("noEnter", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                     return;
                 }
             }
@@ -424,13 +452,16 @@ namespace Game4Freak.AdvancedZones
 
         private void onVehicleCarjack(InteractableVehicle vehicle, Player instigatingPlayer, ref bool allow, ref Vector3 force, ref Vector3 torque)
         {
-            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleCarjack]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission("advancedzones.override.carjack"))
+            UnturnedPlayer player = UnturnedPlayer.FromPlayer(instigatingPlayer);
+            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleCarjack]) && !player.HasPermission("advancedzones.override.carjack"))
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleCarjack]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.carjack." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleCarjack]) && !player.HasPermission(("advancedzones.override.carjack." + zone.getName()).ToLower()))
                     {
+                        if(Configuration.Instance.NotifyCarjack)
+                            UnturnedChat.Say(player, Translate("noVehicleCarjack", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                         allow = false;
                         return;
                     }
@@ -440,13 +471,16 @@ namespace Game4Freak.AdvancedZones
 
         private void onVehicleSiphoning(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow, ref ushort desiredAmount)
         {
-            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleSiphoning]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission("advancedzones.override.siphoning"))
+            UnturnedPlayer player = UnturnedPlayer.FromPlayer(instigatingPlayer);
+            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleSiphoning]) && !player.HasPermission("advancedzones.override.siphoning"))
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleSiphoning]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.siphoning." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleSiphoning]) && !player.HasPermission(("advancedzones.override.siphoning." + zone.getName()).ToLower()))
                     {
+                        if (Configuration.Instance.NotifySiphoning)
+                            UnturnedChat.Say(player, Translate("noVehicleSiphoning", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                         shouldAllow = false;
                         return;
                     }
@@ -458,6 +492,25 @@ namespace Game4Freak.AdvancedZones
         {
             if (transformInZoneType(parameters.zombie.transform, Zone.flagTypes[Zone.noZombieDamage]))
             {
+                UnturnedPlayer player = null;
+                if (parameters.instigator is CSteamID)
+                    player = UnturnedPlayer.FromCSteamID((CSteamID)parameters.instigator);
+                if (parameters.instigator is Player)
+                    player = UnturnedPlayer.FromPlayer((Player)parameters.instigator);
+
+                if (player != null)
+                {
+                    List<Zone> currentZones = getPositionZones(parameters.zombie.transform.position);
+                    foreach (var zone in currentZones)
+                    {
+                        if (zone.hasFlag(Zone.flagTypes[Zone.noZombieDamage]) && !player.HasPermission(("advancedzones.override.zombiedamage." + zone.getName()).ToLower()))
+                        {
+                            if (Configuration.Instance.NotifyDamageZombie)
+                                UnturnedChat.Say(player, Translate("noZombieDamage", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                        }
+
+                    }
+                }
                 canDamage = false;
             }
         }
@@ -466,19 +519,41 @@ namespace Game4Freak.AdvancedZones
         {
             if (transformInZoneType(parameters.animal.transform, Zone.flagTypes[Zone.noAnimalDamage]))
             {
+                UnturnedPlayer player = null;
+                if (parameters.instigator is CSteamID)
+                    player = UnturnedPlayer.FromCSteamID((CSteamID)parameters.instigator);
+                if (parameters.instigator is Player)
+                    player = UnturnedPlayer.FromPlayer((Player)parameters.instigator);
+
+                if (player != null)
+                {
+                    List<Zone> currentZones = getPositionZones(parameters.animal.transform.position);
+                    foreach (var zone in currentZones)
+                    {
+                        if (zone.hasFlag(Zone.flagTypes[Zone.noAnimalDamage]) && !player.HasPermission(("advancedzones.override.animaldamage." + zone.getName()).ToLower()))
+                        {
+                            if (Configuration.Instance.NotifyDamageAnimal)
+                                UnturnedChat.Say(player, Translate("noAnimalDamage", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                        }
+                
+                    }
+                }
                 canDamage = false;
             }
         }
 
         private void onTireDamage(CSteamID instigatorSteamID, InteractableVehicle vehicle, int tireIndex, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
-            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noTireDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.tiredamage"))
+            UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noTireDamage]) && !player.HasPermission("advancedzones.override.tiredamage"))
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noTireDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.tiredamage." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noTireDamage]) && !player.HasPermission(("advancedzones.override.tiredamage." + zone.getName()).ToLower()))
                     {
+                        if (Configuration.Instance.NotifyDamageTire)
+                            UnturnedChat.Say(player, Translate("noTireDamage", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                         shouldAllow = false;
                         return;
                     }
@@ -488,14 +563,15 @@ namespace Game4Freak.AdvancedZones
 
         private void onPlayerEquiped(Player player, PlayerEquipment equipment)
         {
-            if (!UnturnedPlayer.FromPlayer(player).HasPermission("advancedzones.override.equip"))
+            UnturnedPlayer uPlayer = UnturnedPlayer.FromPlayer(player);
+            if (!uPlayer.HasPermission("advancedzones.override.equip"))
             {
                 List<Zone> currentZones = getPositionZones(player.transform.position);
                 foreach (var zone in currentZones)
                 {
                     if (zone.hasFlag(Zone.flagTypes[Zone.noItemEquip]))
                     {
-                        if (!UnturnedPlayer.FromPlayer(player).HasPermission(("advancedzones.override.equip." + zone.getName()).ToLower()))
+                        if (!uPlayer.HasPermission(("advancedzones.override.equip." + zone.getName()).ToLower()))
                         {
                             List<EquipBlocklist> currentEquipBlocklists = getEquipBlocklists(zone.getEquipBlocklists());
                             List<EquipBlocklist> currentIgnoredEquipBlocklists = new List<EquipBlocklist>();
@@ -521,6 +597,8 @@ namespace Game4Freak.AdvancedZones
                             {
                                 if (blocklist.name == "ALL")
                                 {
+                                    if (Configuration.Instance.NotifyItemEquip)
+                                        UnturnedChat.Say(uPlayer, Translate("noItemEquip", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     equipment.dequip();
                                     return;
                                 }
@@ -530,6 +608,8 @@ namespace Game4Freak.AdvancedZones
                             {
                                 if (blocklist.hasItem(equipment.asset.id))
                                 {
+                                    if (Configuration.Instance.NotifyItemEquip)
+                                        UnturnedChat.Say(uPlayer, Translate("noItemEquip", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     equipment.dequip();
                                     return;
                                 }
@@ -546,6 +626,8 @@ namespace Game4Freak.AdvancedZones
 
         private void onPlayerDamage(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
+            UnturnedPlayer player = UnturnedPlayer.FromPlayer(parameters.player);
+            UnturnedPlayer oponent = UnturnedPlayer.FromCSteamID(parameters.killer);
             if (parameters.cause == EDeathCause.BLEEDING || parameters.cause == EDeathCause.BONES || parameters.cause == EDeathCause.BREATH || parameters.cause == EDeathCause.BURNING || parameters.cause == EDeathCause.FOOD || parameters.cause == EDeathCause.FREEZING 
                 || parameters.cause == EDeathCause.INFECTION || parameters.cause == EDeathCause.ARENA || parameters.cause == EDeathCause.KILL || parameters.cause == EDeathCause.SUICIDE || parameters.cause == EDeathCause.WATER)
             {
@@ -553,21 +635,21 @@ namespace Game4Freak.AdvancedZones
             }
             if (parameters.cause == EDeathCause.LANDMINE || parameters.cause == EDeathCause.SHRED || parameters.cause == EDeathCause.SENTRY || parameters.cause == EDeathCause.VEHICLE || parameters.cause == EDeathCause.ROADKILL || parameters.cause == EDeathCause.ACID || parameters.cause == EDeathCause.BOULDER)
             {
-                if (playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPlayerDamage]))
+                if (playerInZoneType(player, Zone.flagTypes[Zone.noPlayerDamage]))
                 {
                     if (parameters.cause == EDeathCause.VEHICLE)
                     {
-                        if (UnturnedPlayer.FromPlayer(parameters.player).IsInVehicle)
+                        if (player.IsInVehicle)
                             return;
                     }
                     shouldAllow = false;
                     return;
                 }
-                else if (playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPvP]) && (parameters.cause != EDeathCause.ACID && parameters.cause != EDeathCause.BOULDER))
+                else if (playerInZoneType(player, Zone.flagTypes[Zone.noPvP]) && (parameters.cause != EDeathCause.ACID && parameters.cause != EDeathCause.BOULDER))
                 {
                     if (parameters.cause == EDeathCause.VEHICLE)
                     {
-                        if (UnturnedPlayer.FromPlayer(parameters.player).IsInVehicle)
+                        if (player.IsInVehicle)
                             return;
                     }
                     shouldAllow = false;
@@ -578,33 +660,37 @@ namespace Game4Freak.AdvancedZones
                     return;
                 }
             } 
-            if ((UnturnedPlayer.FromCSteamID(parameters.killer) == null || UnturnedPlayer.FromCSteamID(parameters.killer).Player == null) && playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPlayerDamage]))
+            if ((oponent == null || oponent.Player == null) && playerInZoneType(player, Zone.flagTypes[Zone.noPlayerDamage]))
             {
                 if (parameters.cause == EDeathCause.ZOMBIE)
                 {
-                    UnturnedPlayer.FromPlayer(parameters.player).Infection = 0;
+                    player.Infection = 0;
                 }
                 shouldAllow = false;
                 return;
             }
-            else if (UnturnedPlayer.FromCSteamID(parameters.killer) == null || UnturnedPlayer.FromCSteamID(parameters.killer).Player == null)
+            else if (oponent == null || oponent.Player == null)
             {
                 return;
             }
-            if (((playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPlayerDamage]) || playerInZoneType(UnturnedPlayer.FromCSteamID(parameters.killer), Zone.flagTypes[Zone.noPlayerDamage]))
-                 && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission("advancedzones.override.playerdamage")) || ((playerInZoneType(UnturnedPlayer.FromPlayer(parameters.player), Zone.flagTypes[Zone.noPvP]) ||
-                 playerInZoneType(UnturnedPlayer.FromCSteamID(parameters.killer), Zone.flagTypes[Zone.noPvP])) && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission("advancedzones.override.pvp")))
+            if (((playerInZoneType(player, Zone.flagTypes[Zone.noPlayerDamage]) || playerInZoneType(oponent, Zone.flagTypes[Zone.noPlayerDamage]))
+                 && !oponent.HasPermission("advancedzones.override.playerdamage")) || ((playerInZoneType(player, Zone.flagTypes[Zone.noPvP]) ||
+                 playerInZoneType(oponent, Zone.flagTypes[Zone.noPvP])) && !oponent.HasPermission("advancedzones.override.pvp")))
             {
                 List<Zone> currentZones = getPositionZones(parameters.player.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noPlayerDamage]) && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noPlayerDamage]) && !oponent.HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
                     {
+                        if (Configuration.Instance.NotifyDamagePlayer)
+                            UnturnedChat.Say(oponent, Translate("noPvP", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                         shouldAllow = false;
                         return;
                     }
-                    else if (zone.hasFlag(Zone.flagTypes[Zone.noPvP]) && !UnturnedPlayer.FromCSteamID(parameters.killer).HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
+                    else if (zone.hasFlag(Zone.flagTypes[Zone.noPvP]) && !oponent.HasPermission(("advancedzones.override.pvp." + zone.getName()).ToLower()))
                     {
+                        if (Configuration.Instance.NotifyDamagePlayer)
+                            UnturnedChat.Say(oponent, Translate("noPvP", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                         shouldAllow = false;
                         return;
                     }
@@ -614,14 +700,15 @@ namespace Game4Freak.AdvancedZones
 
         private void onStructureDepoly(Structure structure, ItemStructureAsset asset, ref Vector3 point, ref float angle_x, ref float angle_y, ref float angle_z, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
-            if (!UnturnedPlayer.FromCSteamID(new CSteamID(owner)).HasPermission("advancedzones.override.build"))
+            UnturnedPlayer player = UnturnedPlayer.FromCSteamID(new CSteamID(owner));
+            if (!player.HasPermission("advancedzones.override.build"))
             {
                 List<Zone> currentZones = getPositionZones(point);
                 foreach (var zone in currentZones)
                 {
                     if (zone.hasFlag(Zone.flagTypes[Zone.noBuild]))
                     {
-                        if (!UnturnedPlayer.FromCSteamID(new CSteamID(owner)).HasPermission(("advancedzones.override.build." + zone.getName()).ToLower()))
+                        if (!player.HasPermission(("advancedzones.override.build." + zone.getName()).ToLower()))
                         {
                             List<BuildBlocklist> currentBuildBlocklists = getBuildBlocklists(zone.getBuildBlocklists());
                             List<BuildBlocklist> currentIgnoredBuildBlocklists = new List<BuildBlocklist>();
@@ -647,6 +734,8 @@ namespace Game4Freak.AdvancedZones
                             {
                                 if (blocklist.name == "ALL")
                                 {
+                                    if (Configuration.Instance.NotifyBuild)
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -656,6 +745,8 @@ namespace Game4Freak.AdvancedZones
                             {
                                 if (blocklist.hasItem(asset.id))
                                 {
+                                    if (Configuration.Instance.NotifyBuild)
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -672,16 +763,17 @@ namespace Game4Freak.AdvancedZones
 
         private void onBarricadeDeploy(Barricade barricade, ItemBarricadeAsset asset, Transform hit, ref Vector3 point, ref float angle_x, ref float angle_y, ref float angle_z, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
-            if (UnturnedPlayer.FromCSteamID(new CSteamID(owner)) == null)
+            UnturnedPlayer player = UnturnedPlayer.FromCSteamID(new CSteamID(owner));
+            if (player == null)
                 return;
-            if (!UnturnedPlayer.FromCSteamID(new CSteamID(owner)).HasPermission("advancedzones.override.build"))
+            if (!player.HasPermission("advancedzones.override.build"))
             {
                 List<Zone> currentZones = getPositionZones(point);
                 foreach (var zone in currentZones)
                 {
                     if (zone.hasFlag(Zone.flagTypes[Zone.noBuild]))
                     {
-                        if (!UnturnedPlayer.FromCSteamID(new CSteamID(owner)).HasPermission(("advancedzones.override.build." + zone.getName()).ToLower()))
+                        if (!player.HasPermission(("advancedzones.override.build." + zone.getName()).ToLower()))
                         {
                             List<BuildBlocklist> currentBuildBlocklists = getBuildBlocklists(zone.getBuildBlocklists());
                             List<BuildBlocklist> currentIgnoredBuildBlocklists = new List<BuildBlocklist>();
@@ -707,6 +799,8 @@ namespace Game4Freak.AdvancedZones
                             {
                                 if (blocklist.name == "ALL")
                                 {
+                                    if (Configuration.Instance.NotifyBuild)
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -716,6 +810,8 @@ namespace Game4Freak.AdvancedZones
                             {
                                 if (blocklist.hasItem(asset.id))
                                 {
+                                    if (Configuration.Instance.NotifyBuild)
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -732,14 +828,17 @@ namespace Game4Freak.AdvancedZones
 
         private void onVehicleLockpick(InteractableVehicle vehicle, Player instigatingPlayer, ref bool allow)
         {
-            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noLockpick]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission("advancedzones.override.lockpick"))
+            UnturnedPlayer player = UnturnedPlayer.FromPlayer(instigatingPlayer);
+            if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noLockpick]) && !player.HasPermission("advancedzones.override.lockpick"))
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noLockpick]) && !UnturnedPlayer.FromPlayer(instigatingPlayer).HasPermission(("advancedzones.override.lockpick." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noLockpick]) && !player.HasPermission(("advancedzones.override.lockpick." + zone.getName()).ToLower()))
                     {
-                        allow = false; ;
+                        if (Configuration.Instance.NotifyLockpick)
+                            UnturnedChat.Say(player, Translate("noLockpick", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                        allow = false;
                     }
                 }
             }
@@ -751,13 +850,16 @@ namespace Game4Freak.AdvancedZones
 
         private void onVehicleDamage(CSteamID instigatorSteamID, InteractableVehicle vehicle, ref ushort pendingTotalDamage, ref bool canRepair, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
-            if ((transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.vehicledamage")) && pendingTotalDamage > 0)
+            UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+            if ((transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleDamage]) && !player.HasPermission("advancedzones.override.vehicledamage")) && pendingTotalDamage > 0)
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
                 foreach (var zone in currentZones)
                 {
-                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.vehicledamage." + zone.getName()).ToLower()))
+                    if (zone.hasFlag(Zone.flagTypes[Zone.noVehicleDamage]) && !player.HasPermission(("advancedzones.override.vehicledamage." + zone.getName()).ToLower()))
                     {
+                        if (Configuration.Instance.NotifyDamageVehicle)
+                            UnturnedChat.Say(player, Translate("noVehicleDamage", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                         shouldAllow = false;
                     }
                 }
@@ -770,17 +872,21 @@ namespace Game4Freak.AdvancedZones
 
         private void onStructureDamage(CSteamID instigatorSteamID, Transform structureTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            
             if (transformInZoneType(structureTransform, Zone.flagTypes[Zone.noDamage]))
             {
-                if (UnturnedPlayer.FromCSteamID(instigatorSteamID) != null)
+                UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+                if (player != null)
                 {
-                    if (!UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.damage") && pendingTotalDamage > 0)
+                    if (!player.HasPermission("advancedzones.override.damage") && pendingTotalDamage > 0)
                     {
                         List<Zone> currentZones = getPositionZones(structureTransform.transform.position);
                         foreach (var zone in currentZones)
                         {
-                            if (zone.hasFlag(Zone.flagTypes[Zone.noDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.damage." + zone.getName()).ToLower()))
+                            if (zone.hasFlag(Zone.flagTypes[Zone.noDamage]) && !player.HasPermission(("advancedzones.override.damage." + zone.getName()).ToLower()))
                             {
+                                if (Configuration.Instance.NotifyDamageBuild)
+                                    UnturnedChat.Say(player, Translate("noDamage", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                 shouldAllow = false;
                             }
                         }
@@ -804,9 +910,10 @@ namespace Game4Freak.AdvancedZones
         {
             if (transformInZoneType(barricadeTransform, Zone.flagTypes[Zone.noDamage]))
             {
-                if (UnturnedPlayer.FromCSteamID(instigatorSteamID) != null)
+                UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+                if (player != null)
                 {
-                    if (!UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission("advancedzones.override.damage") && pendingTotalDamage > 0)
+                    if (!player.HasPermission("advancedzones.override.damage") && pendingTotalDamage > 0)
                     {
                         if (barricadeTransform.name.ToString() != "1102"
                                 && barricadeTransform.name.ToString() != "1101"
@@ -816,8 +923,10 @@ namespace Game4Freak.AdvancedZones
                             List<Zone> currentZones = getPositionZones(barricadeTransform.transform.position);
                             foreach (var zone in currentZones)
                             {
-                                if (zone.hasFlag(Zone.flagTypes[Zone.noDamage]) && !UnturnedPlayer.FromCSteamID(instigatorSteamID).HasPermission(("advancedzones.override.damage." + zone.getName()).ToLower()))
+                                if (zone.hasFlag(Zone.flagTypes[Zone.noDamage]) && !player.HasPermission(("advancedzones.override.damage." + zone.getName()).ToLower()))
                                 {
+                                    if (Configuration.Instance.NotifyDamageBuild)
+                                        UnturnedChat.Say(player, Translate("noDamage", zone.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                 }
                             }

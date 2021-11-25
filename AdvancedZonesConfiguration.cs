@@ -26,6 +26,22 @@ namespace Game4Freak.AdvancedZones
         public List<List<string>> ZoneEnterMessages;
         public List<List<string>> ZoneLeaveMessages;
 
+        //Notifications
+        public bool NotifyBuild;
+        public bool NotifyDamageBuild;
+        public bool NotifyDamageVehicle;
+        public bool NotifyDamageTire;
+        public bool NotifyDamageAnimal;
+        public bool NotifyDamageZombie;
+        public bool NotifyDamagePlayer;
+        public bool NotifyCarjack;
+        public bool NotifySiphoning;
+        public bool NotifyLockpick;
+        public bool NotifyItemEquip;
+        public bool NotifyNoEnter;
+        public bool NotifyNoLeave;
+        public string NotificationColor;
+
         // Zones
         [XmlArrayItem(ElementName = "Zone")]
         public List<Zone> Zones;
@@ -43,6 +59,22 @@ namespace Game4Freak.AdvancedZones
         {
             //version = AdvancedZones.VERSION;
             version = AdvancedZones.VERSION;
+
+            //Notifications
+            NotifyBuild = true;
+            NotifyDamageBuild = true;
+            NotifyDamageVehicle = true;
+            NotifyDamageTire = true;
+            NotifyDamageAnimal = true;
+            NotifyDamageZombie = true;
+            NotifyDamagePlayer = true;
+            NotifyCarjack = true;
+            NotifySiphoning = true;
+            NotifyLockpick = true;
+            NotifyItemEquip = true;
+            NotifyNoEnter = true;
+            NotifyNoLeave = true;
+            NotificationColor = "red";
 
             // Zones
             Zones = new List<Zone>();
