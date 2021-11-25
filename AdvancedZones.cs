@@ -735,7 +735,7 @@ namespace Game4Freak.AdvancedZones
                                 if (blocklist.name == "ALL")
                                 {
                                     if (Configuration.Instance.NotifyBuild)
-                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -746,7 +746,7 @@ namespace Game4Freak.AdvancedZones
                                 if (blocklist.hasItem(asset.id))
                                 {
                                     if (Configuration.Instance.NotifyBuild)
-                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -800,7 +800,7 @@ namespace Game4Freak.AdvancedZones
                                 if (blocklist.name == "ALL")
                                 {
                                     if (Configuration.Instance.NotifyBuild)
-                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
@@ -811,7 +811,7 @@ namespace Game4Freak.AdvancedZones
                                 if (blocklist.hasItem(asset.id))
                                 {
                                     if (Configuration.Instance.NotifyBuild)
-                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.id), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
+                                        UnturnedChat.Say(player, Translate("noBuild", zone.name, asset.name), UnturnedChat.GetColorFromName(Configuration.Instance.NotificationColor, Color.red));
                                     shouldAllow = false;
                                     return;
                                 }
