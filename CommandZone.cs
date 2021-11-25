@@ -425,7 +425,7 @@ namespace Game4Freak.AdvancedZones
                     {
                         currentZone.addHeightNode(new HeightNode(player.Position.x, player.Position.z, player.Position.y + heightOffset, isUpper));
                         AdvancedZones.Instance.Configuration.Save();
-                        UnturnedChat.Say(caller, "Set heightNode isUpper: " + isUpper + " on zone: " + currentZone.name, UnityEngine.Color.cyan);
+                        UnturnedChat.Say(caller, "Set heightNode " + (isUpper ? "upper" : "lower") +": on zone: " + currentZone.name, UnityEngine.Color.cyan);
                     }
                     else
                     {
@@ -1416,7 +1416,7 @@ namespace Game4Freak.AdvancedZones
             {
                 if (command.Length == 1)
                 {
-                    UnturnedChat.Say(caller, "Your position: x: " + player.Position.x + ", z: " + player.Position.z, UnityEngine.Color.cyan);
+                    UnturnedChat.Say(caller, "Your position: x: " + player.Position.x + ", y: " + player.Position.y + ", z: " + player.Position.z, UnityEngine.Color.cyan);
                 }
                 else
                 {
