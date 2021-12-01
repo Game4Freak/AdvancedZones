@@ -701,6 +701,7 @@ namespace Game4Freak.AdvancedZones
         private void onStructureDepoly(Structure structure, ItemStructureAsset asset, ref Vector3 point, ref float angle_x, ref float angle_y, ref float angle_z, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
             UnturnedPlayer player = UnturnedPlayer.FromCSteamID(new CSteamID(owner));
+            if (player == null) return;
             if (!player.HasPermission("advancedzones.override.build"))
             {
                 List<Zone> currentZones = getPositionZones(point);
@@ -764,8 +765,7 @@ namespace Game4Freak.AdvancedZones
         private void onBarricadeDeploy(Barricade barricade, ItemBarricadeAsset asset, Transform hit, ref Vector3 point, ref float angle_x, ref float angle_y, ref float angle_z, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
             UnturnedPlayer player = UnturnedPlayer.FromCSteamID(new CSteamID(owner));
-            if (player == null)
-                return;
+            if (player == null) return;
             if (!player.HasPermission("advancedzones.override.build"))
             {
                 List<Zone> currentZones = getPositionZones(point);
