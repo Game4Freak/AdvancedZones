@@ -963,6 +963,8 @@ namespace Game4Freak.AdvancedZones
 
         public bool playerInZoneType(UnturnedPlayer player, string type)
         {
+            if (player == null) return false;
+
             List<Zone> zones = getPositionZones(player.Position);
             if (zones.Count == 0)
             {
@@ -985,59 +987,65 @@ namespace Game4Freak.AdvancedZones
             List<Zone> zones = new List<Zone>();
             foreach (var z in Configuration.Instance.Zones)
             {
-                if (z.isReady())
+               if(isPositionInZone(position, z)) zones.Add(z);
+            }
+            return zones;
+        }
+
+        public bool isPositionInZone(Vector3 position, Zone zone)
+        {
+            if (zone.isReady())
+            {
+                float playerX = position.x;
+                float playerZ = position.z;
+                float playerY = position.y;
+
+                HeightNode[] heightNodes = zone.GetHeightNodes();
+
+                Node[] zoneNodes = zone.getNodes();
+
+                int j = zoneNodes.Length - 1;
+                bool oddNodes = false;
+
+                for (int i = 0; i < zoneNodes.Length; i++)
                 {
-                    float playerX = position.x;
-                    float playerZ = position.z;
-                    float playerY = position.y;
-
-                    HeightNode[] heightNodes = z.GetHeightNodes();
-
-                    Node[] zoneNodes = z.getNodes();
-
-                    int j = zoneNodes.Length - 1;
-                    bool oddNodes = false;
-
-                    for (int i = 0; i < zoneNodes.Length; i++)
+                    if ((zoneNodes[i].z < playerZ && zoneNodes[j].z >= playerZ
+                         || zoneNodes[j].z < playerZ && zoneNodes[i].z >= playerZ)
+                         && (zoneNodes[i].x <= playerX || zoneNodes[j].x <= playerX))
                     {
-                        if ((zoneNodes[i].z < playerZ && zoneNodes[j].z >= playerZ
-                             || zoneNodes[j].z < playerZ && zoneNodes[i].z >= playerZ)
-                             && (zoneNodes[i].x <= playerX || zoneNodes[j].x <= playerX))
+                        if (zoneNodes[i].x + (playerZ - zoneNodes[i].z) / (zoneNodes[j].z - zoneNodes[i].z) * (zoneNodes[j].x - zoneNodes[i].x) < playerX)
                         {
-                            if (zoneNodes[i].x + (playerZ - zoneNodes[i].z) / (zoneNodes[j].z - zoneNodes[i].z) * (zoneNodes[j].x - zoneNodes[i].x) < playerX)
-                            {
-                                oddNodes = !oddNodes;
-                            }
+                            oddNodes = !oddNodes;
                         }
-                        j = i;
                     }
-                    if (oddNodes)
+                    j = i;
+                }
+                if (oddNodes)
+                {
+                    if (heightNodes[0] != null && heightNodes[1] != null)
                     {
-                        if (heightNodes[0] != null && heightNodes[1] != null)
+                        if (heightNodes[0].isUpper)
                         {
-                            if (heightNodes[0].isUpper)
+                            if (playerY < heightNodes[0].y && playerY > heightNodes[1].y)
                             {
-                                if (playerY < heightNodes[0].y && playerY > heightNodes[1].y)
-                                {
-                                    zones.Add(z);
-                                }
+                                return true;
                             }
                         }
-                        else if (heightNodes[0] != null)
-                        {
-                            if (heightNodes[0].isUpper && playerY < heightNodes[0].y)
-                                zones.Add(z);
-                            else if (!heightNodes[0].isUpper && playerY > heightNodes[0].y)
-                                zones.Add(z);
-                        }
-                        else
-                        {
-                            zones.Add(z);
-                        }
+                    }
+                    else if (heightNodes[0] != null)
+                    {
+                        if (heightNodes[0].isUpper && playerY < heightNodes[0].y)
+                            return true;
+                        else if (!heightNodes[0].isUpper && playerY > heightNodes[0].y)
+                            return true;
+                    }
+                    else
+                    {
+                        return true;
                     }
                 }
             }
-            return zones;
+            return false;
         }
 
         public bool transformInZoneType(Transform transform, string type)
