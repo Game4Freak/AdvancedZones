@@ -57,7 +57,6 @@ namespace Game4Freak.AdvancedZones
 
         public void LoadDefaults()
         {
-            //version = AdvancedZones.VERSION;
             version = AdvancedZones.VERSION;
 
             //Notifications

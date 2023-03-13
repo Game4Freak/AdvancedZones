@@ -831,7 +831,9 @@ namespace Game4Freak.AdvancedZones
 
         private void onVehicleLockpick(InteractableVehicle vehicle, Player instigatingPlayer, ref bool allow)
         {
+            if (instigatingPlayer == null || vehicle?.transform == null) return;
             UnturnedPlayer player = UnturnedPlayer.FromPlayer(instigatingPlayer);
+
             if (transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noLockpick]) && !player.HasPermission("advancedzones.override.lockpick"))
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);
@@ -854,6 +856,8 @@ namespace Game4Freak.AdvancedZones
         private void onVehicleDamage(CSteamID instigatorSteamID, InteractableVehicle vehicle, ref ushort pendingTotalDamage, ref bool canRepair, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
             UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+            if (player == null || vehicle?.transform == null) return;
+
             if ((transformInZoneType(vehicle.transform, Zone.flagTypes[Zone.noVehicleDamage]) && !player.HasPermission("advancedzones.override.vehicledamage")) && pendingTotalDamage > 0)
             {
                 List<Zone> currentZones = getPositionZones(vehicle.transform.position);

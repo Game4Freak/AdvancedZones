@@ -72,6 +72,7 @@ namespace Game4Freak.AdvancedZones
         public static int leaveRemoveEffect = 23;
         public static int noAnimalDamage = 24;
         public static int noZombieDamage = 25;
+        //TODO: add command onLeave / enter
 
         public Zone()
         {
