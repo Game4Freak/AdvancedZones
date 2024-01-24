@@ -42,10 +42,11 @@ namespace Game4Freak.AdvancedZones
         public List<Parameter> parameters;
 
         public static string[] flagTypes = { "noDamage", "noVehicleDamage", "noLockpick", "noPlayerDamage", "noBuild", "noItemEquip", "noTireDamage", "noEnter", "noLeave", "enterMessage", "leaveMessage", "enterAddGroup", "enterRemoveGroup", "leaveAddGroup", "leaveRemoveGroup", "noZombie", "infiniteGenerator", "noVehicleCarjack",
-            "noPvP", "noVehicleSiphoning", "enterAddEffect", "leaveAddEffect", "enterRemoveEffect", "leaveRemoveEffect", "noAnimalDamage", "noZombieDamage" };
+            "noPvP", "noVehicleSiphoning", "enterAddEffect", "leaveAddEffect", "enterRemoveEffect", "leaveRemoveEffect", "noAnimalDamage", "noZombieDamage", "noObjectDamage", "noResourceDamage", "noSwapSeat", "noDequip", "noDropItem", "noChangeSign", "noOpenStorage", "noCraft", "noHarvest", "noBarricadeSalvage", "noStructureSalvage", "noBarricadeTransform", "noStructureTransform", "noItemSpawn", "noChat", "noTakeItem", "noExitVehicle", "noEnterVehicle" };
         public static string[] flagDescs = { "No damage on structures or barricades", "No damage on vehicles", "No lockpick on vehicles", "No damage on players", "No placing of specific buildables", "No equiping of specific items", "No damage on tires", "No entering the zone", "No leaving the zone", "Message on entering the zone",
             "Message on leaving the zone", "Group added on entering the zone", "Group removed on entering the zone", "Group added on leaving the zone", "Group removed on leaving the zone", "No zombies", "Infinitely running generators", "No carjacking of vehicles", "No damage on players from other players", "No siphoning of vehicles",
-            "Effect on entering the zone", "Effect on leaving the zone", "Effect cleared on entering the zone", "Effect cleared on leaving the zone", "No damge to animals", "No damage to zombies" };
+            "Effect on entering the zone", "Effect on leaving the zone", "Effect cleared on entering the zone", "Effect cleared on leaving the zone", "No damage to animals", "No damage to zombies", "No damage to objects", "No damage to resources", "No swapping seat in vehicle", "No dequiping items", "No dropping items", "No changing sign", "No opening storage", "No crafting", "No harvesting plants", "No salvaging barricades", "No salvaging structures", "No transforming barrdicades", "No transforming structures", "No item spawn", "No chatting", "No taking items",
+            "No exitting vehicle", "No entering vehicle"};
         public static int noDamage = 0;
         public static int noVehicleDamage = 1;
         public static int noLockpick = 2;
@@ -72,6 +73,24 @@ namespace Game4Freak.AdvancedZones
         public static int leaveRemoveEffect = 23;
         public static int noAnimalDamage = 24;
         public static int noZombieDamage = 25;
+        public static int noObjectDamage = 26;
+        public static int noResourceDamage = 27;
+        public static int noSwapSeat = 28;
+        public static int noDequip = 29;
+        public static int noDropItem = 30;
+        public static int noChangeSign = 31;
+        public static int noOpenStorage = 32;
+        public static int noCraft = 33;
+        public static int noHarvest = 34;
+        public static int noBarricadeSalvage = 35;
+        public static int noStructureSalvage = 36;
+        public static int noBarricadeTransform = 37;
+        public static int noStructureTransform = 38;
+        public static int noItemSpawn = 39;
+        public static int noChat = 40;
+        public static int noTakeItem = 41;
+        public static int noExitVehicle = 42;
+        public static int noEnterVehicle = 43;
 
         public Zone()
         {
